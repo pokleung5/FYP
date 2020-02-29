@@ -10,10 +10,10 @@ def _get_DMs(pairs: Tensor):
     rs2 = m * -2 + diag + diag.t()
     return rs2.sqrt()
 
-def get_coordinates(dim: int, maxXY=1, minXY=0, batch=1):
+def get_coordinates(dim=tuple, maxXY=1, minXY=0, batch=1):
     if batch < 2:
-        return rand((dim, 2)) * (maxXY - minXY) + minXY
-    return rand((batch, dim, 2)) * (maxXY - minXY) + minXY
+        return rand(dim) * (maxXY - minXY) + minXY
+    return rand((batch, *dim)) * (maxXY - minXY) + minXY
 
 def get_distinct_matrices(pl: Tensor):
     batch = pl.size()[0] if len(pl.size()) > 2 else 1
@@ -24,7 +24,7 @@ def get_distinct_matrices(pl: Tensor):
 
 class DataGenerator():
         
-    def __init__(self, dim: int, maxXY=1, minXY=0):
+    def __init__(self, dim: tuple, maxXY=1, minXY=0):
         self.max_XY = maxXY
         self.min_XY = minXY
         self.dim = dim

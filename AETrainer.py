@@ -19,6 +19,17 @@ class DMLoss(nn.Module):
 
         return sum((rs - target) ** 2)
 
-# class AETrainer():
-#     def __init__(self, dim):
-        
+class AETrainer():
+    def __init__(self, N: int, out_dim: int):
+        self.N = N
+        self.out_dim = out_dim 
+        self.dg = DataGenerator((N, out_dim))
+
+    def refresh_loader(self, N: int, batch: int):        
+        self.pair_loader = self.dg.get_pair_loader(N=N, batch=batch)
+        self.dm_loader = self.dg.get_DM_loader(N=N, batch=batch)
+
+
+
+
+

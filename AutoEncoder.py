@@ -1,28 +1,10 @@
 # %%
 import torch
 import torch.nn as nn
-from torch.nn import modules
+from torch.nn import modules, functional as F
+from DataGenerator import get_distance_matrices
 
-
-class DMLoss(nn.Module):
-    
-    def __init__(self):
-        super(DMLoss, self).__init__()
-
-    def forward(self, x, target):
-        return torch.sum(x - target)** 2
-
-        batch = x.size()[0] if len(x.size()) > 2 else 1
-        m = x
-
-        if batch > 2:
-            m = sum(m.matmul(m.permute(0, 2, 1)))
-
-        diag = m.diag().unsqueeze(0).expand_as(m)
-        rs = (m * -2 + diag + diag.t()) ** 0.5
-
-        return torch.sum((rs - target) ** 2)
-
+# %%
 
 class AutoEncoder(nn.Module):
 
@@ -30,12 +12,32 @@ class AutoEncoder(nn.Module):
         super(AutoEncoder, self).__init__()
 
         self.encoder = nn.Sequential(
-            nn.Linear(in_dim, out_dim),
-            nn.Sigmoid()
+            nn.Conv2d(in_channels=1, out_channels=2, kernel_size=2),
+            nn.ReLU(True),
+            # nn.MaxPool2d(2),
+            nn.Conv2d(in_channels=2, out_channels=2, kernel_size=2),
+            nn.Sigmoid(),
+            # nn.MaxPool2d(2)
         )
 
-    def forward(self, x):
-        rs = self.encoder(x)
-        return rs
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(in_channels=2, out_channels=1, kernel_size=3),
+            nn.ReLU(True),
+            nn.Linear(in_features=in_dim, out_features=int(out_dim), bias=True),
+            # nn.ReLU(True),
+            # nn.Linear(in_features=int(out_dim/2), out_features=out_dim, bias=True),
+            nn.Tanh()
+        )
 
+    def forward(self, x: torch.Tensor):
+
+        encoded = self.encoder(x)
+        # print("encoded: ", encoded.size())
+        decoded = self.decoder(encoded)
+        # print("decoded: ", decoded.size())
+
+        b, _, n, m = decoded.size()
+        rs = decoded.view((b, n, m))
+
+        return get_distance_matrices(rs)
 # %%

@@ -68,8 +68,6 @@ def register_hooks(var):
     return make_dot
 
 def view_gradient(v):
-    v = torch.sum(v)
-    
     get_dot = register_hooks(v)
     v.backward(retain_graph=True)
     get_dot().view()

@@ -1,0 +1,85 @@
+digraph {
+	graph [size="12,12"]
+	node [align=left fontsize=12 height=0.2 ranksep=0.1 shape=box style=filled]
+	2050023098952 [label=SumBackward0 fillcolor=white]
+	2050014798920 -> 2050023098952
+	2050014798920 [label=UnsafeViewBackward fillcolor=white]
+	2050024950536 -> 2050014798920
+	2050024950536 [label=BmmBackward fillcolor=white]
+	2050014799432 -> 2050024950536
+	2050023699080 -> 2050024950536
+	2050023699080 [label=ViewBackward fillcolor=white]
+	2050023698696 -> 2050023699080
+	2050023698696 [label=ExpandBackward fillcolor=white]
+	2050023700232 -> 2050023698696
+	2050023700232 [label=ThresholdBackward0 fillcolor=white]
+	2050023700424 -> 2050023700232
+	2050023700424 [label=AddBackward0 fillcolor=white]
+	2050023701704 -> 2050023700424
+	2050018998136 -> 2050023700424
+	2050018998136 [label="Variable
+ (2)" fillcolor=lightblue]
+	2050023701704 [label=UnsafeViewBackward fillcolor=white]
+	2050023699656 -> 2050023701704
+	2050023699656 [label=MmBackward fillcolor=white]
+	2050023700360 -> 2050023699656
+	2050023715784 -> 2050023699656
+	2050023715784 [label=TBackward fillcolor=white]
+	2050018998936 -> 2050023715784
+	2050018998936 [label="Variable
+ (2, 3)" fillcolor=lightblue]
+	2050023700360 [label=ViewBackward fillcolor=white]
+	2050023698824 -> 2050023700360
+	2050023698824 [label=ThresholdBackward0 fillcolor=white]
+	2050023714888 -> 2050023698824
+	2050023714888 [label=AddBackward0 fillcolor=white]
+	2050023715464 -> 2050023714888
+	2050018999096 -> 2050023714888
+	2050018999096 [label="Variable
+ (3)" fillcolor=lightblue]
+	2050023715464 [label=UnsafeViewBackward fillcolor=white]
+	2050023718600 -> 2050023715464
+	2050023718600 [label=MmBackward fillcolor=white]
+	2050023718152 -> 2050023718600
+	2050023080328 -> 2050023718600
+	2050023080328 [label=TBackward fillcolor=white]
+	2050018999496 -> 2050023080328
+	2050018999496 [label="Variable
+ (3, 4)" fillcolor=lightblue]
+	2050023718152 [label=ViewBackward fillcolor=white]
+	2050023083272 -> 2050023718152
+	2050023083272 [label=ThnnConv2DBackward fillcolor=white]
+	2050014708552 -> 2050023083272
+	2050018472728 -> 2050023083272
+	2050021240328 -> 2050023083272
+	2050021240328 [label="Variable
+ (1)" fillcolor=lightblue]
+	2050018472728 [label="Variable
+ (1, 1, 3, 3)" fillcolor=lightblue]
+	2050014708552 [label=ViewBackward fillcolor=white]
+	2050022736024 -> 2050014708552
+	2050022736104 [label="Variable
+ (1, 6, 6)" fillcolor=lightblue]
+	2050014799432 [label=ViewBackward fillcolor=white]
+	2050012954440 -> 2050014799432
+	2050012954440 [label=ExpandBackward fillcolor=white]
+	2050023083592 -> 2050012954440
+	2050023083592 [label=ThresholdBackward0 fillcolor=white]
+	2050012953224 -> 2050023083592
+	2050012953224 [label=AddBackward0 fillcolor=white]
+	2050012952136 -> 2050012953224
+	2050008900216 -> 2050012953224
+	2050008900216 [label="Variable
+ (4)" fillcolor=lightblue]
+	2050012952136 [label=UnsafeViewBackward fillcolor=white]
+	2050012950664 -> 2050012952136
+	2050012950664 [label=MmBackward fillcolor=white]
+	2050012952968 -> 2050012950664
+	2050012952520 -> 2050012950664
+	2050012952520 [label=TBackward fillcolor=white]
+	2050021443688 -> 2050012952520
+	2050021443688 [label="Variable
+ (4, 6)" fillcolor=lightblue]
+	2050012952968 [label=ViewBackward fillcolor=white]
+	2050014708552 -> 2050012952968
+}

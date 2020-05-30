@@ -71,3 +71,8 @@ def view_gradient(v):
     get_dot = register_hooks(v)
     v.backward(retain_graph=True)
     get_dot().view()
+
+def check_gradient(v):
+    get_dot = register_hooks(v)
+    v.backward(retain_graph=True)
+    get_dot()

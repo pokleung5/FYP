@@ -2,8 +2,6 @@ from graphviz import Digraph, Source
 import torch
 from torch.autograd import Variable, Function
 
-path = 'tmp.dot'
-
 def iter_graph(root, callback):
     queue = [root]
     seen = set()
@@ -17,7 +15,7 @@ def iter_graph(root, callback):
                 queue.append(next_fn)
         callback(fn)
 
-def register_hooks(var):
+def register_hooks(var, filepath):
     fn_dict = {}
     def hook_cb(fn):
         def register_grad(grad_input, grad_output):
@@ -41,7 +39,7 @@ def register_hooks(var):
                         fontsize='12',
                         ranksep='0.1',
                         height='0.2')
-        dot = Digraph(node_attr=node_attr, graph_attr=dict(size="12,12"))
+        dot = Digraph(filename=filepath, node_attr=node_attr, graph_attr=dict(size="12,12"))
 
         def size_to_str(size):
             return '('+(', ').join(map(str, size))+')'
@@ -68,7 +66,7 @@ def register_hooks(var):
     return make_dot
 
 def view_gradient(v):
-    get_dot = register_hooks(v)
+    get_dot = register_hooks(v, 'bin/Digraph.gv')
     v.backward(retain_graph=True)
     get_dot().view()
 

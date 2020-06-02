@@ -27,7 +27,7 @@ torch.set_default_tensor_type('torch.DoubleTensor')
 panel = (100, 10)
 sample, N, d = 160, 50, 5
 
-coords = utils.get_rand_coords((sample, N, d), *panel, isInt=True)
+coords = utils.get_rand_DM((sample, N, d), *panel, isInt=True)
 # coords = utils.minmax_norm(coords, *panel)
 
 dms = utils.get_distance_matrix(coords)
@@ -111,7 +111,7 @@ plt.show()
 
 test_sampe = 100
 
-test_coords = utils.get_rand_coords((test_sampe, N, 5), maxXY=1, minXY=0)
+test_coords = utils.get_rand_DM((test_sampe, N, 5), maxXY=1, minXY=0)
 test_dms = utils.get_distance_matrix(test_coords)
 test_dms = test_dms.view(test_sampe, 1, N, N)  # zip(coords, dms)
 test_data = torch.tensor(test_dms.data, requires_grad=True)

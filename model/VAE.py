@@ -4,34 +4,30 @@ from torch import tensor
 from torch import nn, optim
 from torch.nn import functional as F
 
+from . import AutoEncoder as ae
+
 def reparameterize(mu, logvar):
     std = torch.exp(0.5 * logvar)
     eps = torch.randn_like(std)
     return mu + eps * std
 
 
-class VAE(nn.Module):
-    def __init__(self, dim: list,
-                 activation=nn.ReLU, final_activation=nn.Tanh):
-        super(VAE, self).__init__()
-        
-        nL = len(dim)
-        dim.reverse()
+class VAE(ae.AutoEncoder):
 
-        self.encoder = nn.Sequential(
-            *sum([[
-                nn.Linear(dim[i], dim[i - 1]),
-                activation()
-            ] for i in range(nL - 1, 1, -1)], [])
-        )
+    def __init__(self, encode_dim: list, decode_dim=None,
+                    activation=nn.ReLU, final_activation=nn.Sigmoid):
 
-        self.e1 = nn.Linear(dim[1], dim[0])
-        self.e2 = nn.Linear(dim[1], dim[0])
+        if decode_dim is None:
+            decode_dim = encode_dim.copy()
+            decode_dim.reverse()
 
-        if final_activation is not None:
-            self.final_act = final_activation()
-        else:
-            self.final_act = None
+        super(VAE, self).__init__(
+            encode_dim=encode_dim[:-2], decode_dim=decode_dim,
+            activation=activation, final_activation=final_activation)
+
+        self.e1 = nn.Linear(encode_dim[-2], encode_dim[-1])
+        self.e2 = nn.Linear(encode_dim[-2], encode_dim[-1])
+
 
     def encode(self, x):
         e = self.encoder(x)
@@ -39,9 +35,11 @@ class VAE(nn.Module):
 
     def forward(self, x):
         mu, logvar = self.encode(x)
+
         z = reparameterize(mu, logvar)
-        
+        d = self.decode(z)
+
         if self.final_act is not None:
-            return self.final_act(z)
+            d = self.final_act(d)
         
-        return z
+        return d, mu, logvar

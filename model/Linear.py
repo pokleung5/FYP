@@ -20,10 +20,10 @@ def get_Linear_Sequential(dim: list, activation):
 
 class Linear(nn.Module):
     def __init__(self, dim: list,
-                 activation=nn.ReLU, final_activation=nn.Tanh):
+                 activation=nn.ReLU, final_activation=None):
         super(Linear, self).__init__()
 
-        self.encoder = get_Linear_Sequential(dim)
+        self.encoder = get_Linear_Sequential(dim, activation)
 
         if final_activation is not None:
             self.final_act = final_activation()

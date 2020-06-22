@@ -4,65 +4,63 @@
 from datetime import datetime
 import torch
 from torch import Tensor, tensor
-import pickle
+# import pickle
+import dill as pickle
 import math
 import numpy
 from matplotlib import pyplot as plt
+# %%
+
+def eignmatrix(dm: Tensor) -> Tensor:
+    
+    batch, N = dm.size()[:2]
+
+    J = torch.eye(N) -  torch.ones((N, N)) / N
+    B =  -0.5 * torch.matmul(torch.matmul(J, dm ** 2), J)
+
+    vals, vects = numpy.linalg.eig(B.detach().numpy())
+    
+    rank = numpy.argsort(-1 * vals)
+
+    for i in range(batch):
+        vals[i] = vals[i][rank[i]]
+        vects[i] = vects[i][:, rank[i]]
+
+    gap = numpy.arange(0, N * 2, 2)
+
+    dm = numpy.zeros((batch, N, N * 2))
+    dm[:, :, gap] = vals.reshape(batch, 1, N)
+    dm[:, :, gap + 1] = vects ** 2
+    
+    return torch.tensor(dm)
 
 # %%
-# def generate_DM(N: int, sample_size: int, func: callable, isInt=False, sample_space=(1, 0)):
 
-
-def generate_rand_DM(N: int, sample_size: int, isInt=False, sample_space=(1, 0)) -> Tensor:
-    """
-        Param: 
-            **N** for number of object
-        Return:
-            **random value matrix**^2
-            - generate_euclidean_DM also ^2
-    """
+def vectorize_distance_from_DM(dm: Tensor) -> Tensor:
     
-    dim = (sample_size, N, N)
-
-    data = get_rand_data(dim=dim, isInt=isInt,
-                         maxXY=sample_space[0],
-                         minXY=sample_space[1])
-                         
-    upper = torch.triu(data, diagonal=1)
-    lower = upper.permute(0, 2, 1)
+    upper_indices = torch.triu(torch.ones(dm.size()), diagonal=1)
     
-    rs = upper + lower
+    batch = dm.size()[0]
+    N = dm.size()[-1]
+
+    n = int((N * (N - 1)) / 2)
     
-    s = rs.size()
-    rs_norm, dmax, _ = minmax_norm(
-        rs ** 2, flat=(s[0], 1, 1, N * N), dmin=0
-    )
+    return dm[upper_indices == 1].view((batch, 1, n))
+
+
+def unvectorize_distance(vect: Tensor) -> Tensor:
     
-    rs_norm = rs_norm.view(sample_size, 1, N, N)
+    batch = vect.size()[0]
+    N = math.ceil((2 * vect.size()[-1]) ** 0.5)
 
-    return torch.tensor(rs_norm, requires_grad=True)
+    rs = torch.zeros(batch, N, N)
+    triu_indices = torch.ones(N, N).triu(diagonal=1).nonzero().transpose(1, 0)
 
+    rs[:, triu_indices[0], triu_indices[1]] = vect.view(batch, vect.size()[-1])
 
-def generate_euclidean_DM(N: int, d: int, sample_size: int, isInt=False, sample_space=(1, 0)) -> Tensor:
-    """
-        Param: 
-            **N** for number of object
-            **d** for dimension of the coordinatecs
-            **sample_space** for controlling the decimal places
-        Return:
-            **distance^2 matrix**
-    """
+    rs = rs + rs.permute(0, 2, 1)
 
-    coords = get_rand_data((sample_size, N, d), isInt=isInt,
-                            maxXY=sample_space[0],
-                            minXY=sample_space[1])
-
-    dms, _ = get_distance_matrix(coords)
-    dms = dms.view(sample_size, 1, N, N)
-
-    return tensor(dms.data, requires_grad=True)
-
-# %%
+    return rs
 
 
 def dump_variable(data, path: str):
@@ -78,47 +76,35 @@ def load_variable(path: str):
 
     return data
 
-# %%
 
-
-def get_rand_data(dim=tuple, isInt=False, maxXY=1, minXY=0) -> Tensor:
-
-    if isInt:
-        return torch.randint(minXY, maxXY, dim)
-    return torch.rand(dim) * (maxXY - minXY) + minXY
-
-
-def get_distance_matrix(pl: Tensor) -> Tensor:
+def get_distanceSq_matrix(pl: Tensor) -> Tensor:
 
     if len(pl.size()) < 3:
         pl = pl.view(1, pl.size()[0], pl.size()[1])
 
     N = pl.size()[1]
 
-    dm = torch.matmul(pl, pl.permute(0, 2, 1).clone())
-    diag = torch.stack([torch.diag(m).expand_as(m) for m in dm])
+    dm = torch.matmul(pl, pl.permute(0, 2, 1))
+    diag = torch.diagonal(dm, dim1=1, dim2=2).view(dm.size()[0], 1, N)
     rs = diag + diag.permute(0, 2, 1) - dm - dm
 
-    s = rs.size()
-    rs_norm, dmax, _ = minmax_norm(
-        rs, flat=(s[0], 1, 1, N * N), dmin=0
-    )
-
-    # rs2 = torch.sqrt(rs2) # backpropagation might fail if 0 involved
-
-    return rs_norm, dmax.sqrt()
-
-# %%
+    return rs
 
 
 def minmax_norm(data: Tensor, flat=None, dim=None, dmax=None, dmin=None, epsilon=0) -> Tensor:
     data = data.double()
 
     if dim is None:
-        dim = len(flat) - 1
+        dim = len(data.size())
+
+    if flat is None:
+        flat = [1 for i in range(dim + 1)]
+        flat[0] = data.size()[0]
+        flat[-1] = -1
+        flat = tuple(flat)
 
     if dmin is None:
-        dmin = torch.min(data.view(flat), dim=dim)[0]
+        dmin = torch.min(data.view(flat), dim=dim)[0] - epsilon
 
     if dmax is None:
         dmax = torch.max(data.view(flat), dim=dim)[0] + epsilon
@@ -126,47 +112,7 @@ def minmax_norm(data: Tensor, flat=None, dim=None, dmax=None, dmin=None, epsilon
     return (data - dmin) / (dmax - dmin), dmax, dmin
 
 
-# %%
-
-
-def time_measure(fun, arg: dict):
+def time_measure(fun, arg: list):
 
     t = datetime.now()
     return fun(*arg), (datetime.now() - t).total_seconds()
-
-# %%
-
-
-def plot_records(records: dict, epoch: int, value_label="Loss"):
-
-    plt.clf()
-
-    plt.xlabel('Epoch')
-    plt.ylabel(value_label)
-
-    for key in records.keys():
-        r = numpy.array(records[key])
-        plt.plot(range(epoch), r[:epoch], label=key)
-    
-    plt.legend()
-    plt.show()
-
-
-def plot_2D_coords(coords: dict):
-    
-    plt.clf()
-
-    plt.xlabel('X')
-    plt.ylabel('Y')
-
-    for key in coords.keys():
-        r = numpy.array(coords[key])
-        plt.scatter(r[:, 0], r[:, 1], label=key)
-    
-    plt.legend()
-    plt.show()
-
-# %%
-
-# def flatten(data: Tensor):
-    

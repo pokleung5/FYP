@@ -21,19 +21,14 @@ import random
 import scipy
 import numpy
 
-# we will repeat the pick-pivot points heuristic this many times
-# a higher value means "better" results, but 1 also works well
-DISTANCE_ITERATIONS=1
-
-
 class FastMap: 
 
-    def __init__(self, dist,verbose=False): 
+    def __init__(self, dist, itr): 
         if dist.max()>1:
             dist/=dist.max()
 
         self.dist=dist
-        self.verbose=verbose
+        self.DISTANCE_ITERATIONS = itr
 
     def _furthest(self, o): 
         mx=-1000000
@@ -51,7 +46,7 @@ class FastMap:
         o1=random.randint(0, len(self.dist)-1)
         o2=-1
 
-        i=DISTANCE_ITERATIONS
+        i=self.DISTANCE_ITERATIONS
 
         while i>0: 
             o=self._furthest(o1)
@@ -70,8 +65,6 @@ class FastMap:
         if K==0: return 
     
         px,py=self._pickPivot()
-
-        # if self.verbose: print "Picked %d,%d at K=%d"%(px,py,K)
 
         if self._dist(px,py,self.col)==0: 
             return 
@@ -104,88 +97,12 @@ class FastMap:
         self._map(K)
         return self.res
 
-def fastmap(distSq, K):
-    """distSq is a NxN distance^2 matrix
+def fastmap(dist, K=2, itr=1):
+    """dist is a NxN distance matrix
     returns coordinates for each N in K dimensions
     """
-    dist = distSq ** 0.5
     
-    return FastMap(dist,True).map(K)
-
-# Below here are methods for testing
-
-def vlen(x,y):
-    return math.sqrt(sum((x-y)**2))                  
-
-def distmatrix(p, c=vlen): 
-   dist=scipy.zeros((len(p),len(p)))
-   for x in range(len(p)):
-       for y in range(x,len(p)):
-           if x==y: continue
-           dist[x,y]=c(p[x], p[y])
-           dist[y,x]=dist[x,y]
-
-   return dist
-
-def distortion(d1,d2): 
-    return scipy.sum(((d1/d1.max())-(d2/d2.max()))**2)/d1.size
-
-def distortiontest(): 
-    points=[]
-
-    n=10
-    mean=10
-    dim=5
-
-    #print "Generating %d %d-D points randomly distributed between [0-%d]"%(n,dim,mean)
-    for i in range(n):
-        points.append(scipy.array([random.uniform(0,mean) for x in range(dim)]))    
-    #print "Computing distance matrix"
-    dist=distmatrix(points)
-    
-    #print "Mapping"
-
-    p1=fastmap(dist,1)
-    #print "K=1"    
-    #print "Distortion: ", distortion(distmatrix(p1),dist)
-
-    p2=fastmap(dist,2)
-    #print "K=2"
-    #print "Distortion: ", distortion(distmatrix(p1),dist)
-
-    p3=fastmap(dist,3)
-    #print "K=3"
-    #print "Distortion: ", distortion(distmatrix(p3),dist)
-
-    import pylab
-    pylab.scatter([x[0]/mean for x in points], [x[1]/mean for x in points],s=50)
-    pylab.scatter([x[0] for x in p2], [x[1] for x in p2], c="r")
-    pylab.show()
-
-
-def stringtest():
-
-    import Levenshtein
-
-    strings=[ "King Crimson", "King Lear", "Denis Leary", "George Bush", "George W. Bush", "Barack Hussein Obama", "Saddam Hussein", "George Leary" ] 
-    
-    dist=distmatrix(strings, c=lambda x,y: 1-Levenshtein.ratio(x,y))
-    
-    p=fastmap(dist,2)
-    import pylab    
-    pylab.scatter([x[0] for x in p], [x[1] for x in p], c="r")
-    for i,s in enumerate(strings):
-        pylab.annotate(s,p[i])
-
-    pylab.title("Levenshtein distance mapped to 2D coordinates")
-    pylab.show()
-    
-    
-# if __name__=='__main__':
-    
-    # stringtest()
-    # distortiontest()
-
+    return FastMap(dist, itr).map(K)
     
 # Copyright (c) 2009, Gunnar Aastrand Grimnes
 # All rights reserved.
@@ -202,47 +119,41 @@ def stringtest():
 #%%
 
 import torch
-
-def get_distance_matrices(pl: torch.Tensor):
-    batch = pl.size()[0] if len(pl.size()) > 2 else 1
-    
-    if batch < 2:
-        pl = pl.view(1, pl.size()[0], pl.size()[1])
-    
-    n = pl.size()[1]
-    zo = torch.tensor(1e-16, requires_grad=True)
-    
-    dm = torch.matmul(pl, pl.permute(0, 2, 1).clone())
-    diag = torch.stack([torch.diag(m).expand_as(m) for m in dm])
-    rs2 = diag + diag.permute(0, 2, 1) - dm - dm # + zo.expand_as(dm)
-    rs3 = torch.sqrt(rs2)
-    
-    if batch > 1:
-        rs3 = rs3.view(batch, 1, n, n)
-
-    return rs3.detach()
-
-#%%
+import utils
 
 if __name__ == "__main__":
     torch.set_default_tensor_type('torch.DoubleTensor')
 
-    pts = torch.tensor(
-        [
-            [-0.3393,  0.9407],
-            [-0.9269, -0.6886],
-            [1.2661, -0.2521]
-        ], requires_grad=True)
+    pts = torch.tensor([[
+            [0, 2],
+            [2, 5],
+            [6, 4],
+            [8, 7],
+            [9, 10]
+        ]])
     
-    dm = get_distance_matrices(pts)[0]
-    dm = numpy.array(dm)
+    dm = utils.get_distanceSq_matrix(pts) ** 0.5
 
+    dm = torch.tensor([[
+            [0, 3, 3],
+            [3, 0.0, 3],
+            [3, 3, 0]
+        ]])
+
+    dm = utils.minmax_norm(dm)[0]
     print(dm)
+    
+    dm = numpy.array(dm[0].data)
     rs = fastmap(dm, 2)
     rs = torch.tensor(rs)
-    
     print(rs)
-    print(get_distance_matrices(rs))
+
+    rs_dm = utils.get_distanceSq_matrix(rs) ** 0.5
+    rs_dm = utils.minmax_norm(rs_dm)[0]
+    print(rs_dm)
+    
+    print(torch.sum(((rs_dm - torch.tensor(dm)) ** 2)))
+
 
 
 # %%

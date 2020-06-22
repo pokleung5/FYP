@@ -8,7 +8,7 @@ from . import Linear
 
 class AutoEncoder(nn.Module):
     def __init__(self, encode_dim: list, decode_dim=None,
-                 activation=nn.ReLU, final_activation=nn.Tanh):
+                 activation=nn.ReLU, final_activation=None):
         super(AutoEncoder, self).__init__()
         
         if decode_dim is None:
@@ -41,4 +41,4 @@ class AutoEncoder(nn.Module):
         if self.final_act is not None:
             d = self.final_act(d)
 
-        return e, d
+        return d

@@ -10,22 +10,35 @@ import utils
 torch.set_default_tensor_type('torch.DoubleTensor')
 
 # %%
+# for filepath in glob.iglob('backup/*.model'):
+#     h = utils.load_variable(filepath)
+#     a = trainHelper.TrainHelper(h.id, h.model, h.optim, h.lossFun, h.preprocess)
+
+#     a.scheduler = h.scheduler
+#     a.records = h.records
+#     a.epoch = h.epoch
+#     a.localRecord = h.localRecord
+
+#     a.backup()
+# %%
 
 
 class TrainHelper:
 
-    def __init__(self, id, model, optimizer, lossFun, lr_factor=0.1):
+    def __init__(self, id, model, optimizer, lossFun, preprocess, lr_factor=0.1):
 
         self.id = id
         self.model = model
         self.optim = optimizer
         self.lossFun = lossFun
 
+        self.preprocess = preprocess
+
         if lr_factor is None:
             self.scheduler = None
         else:
             self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, 'min', factor=lr_factor, verbose=False)
+                optimizer, 'min', factor=lr_factor, verbose=False)
 
         self._init_record()
 
@@ -46,9 +59,11 @@ class TrainHelper:
         self.localRecord.append(dict(zip(self.records.columns, r)))
 
     def _train(self, data: Tensor):
+
         self.optim.zero_grad()
 
-        rs = self.model(data)
+        rs = self._predict(data)
+
         loss = self.lossFun(rs, data.data)
 
         if loss != loss:
@@ -59,18 +74,15 @@ class TrainHelper:
 
         return loss
 
-    def plot(self, cols=None, value_label="Loss"):
-        if cols:
-            utils.plot_records(
-                self.records[cols].to_dict(orient='list'),
-                self.epoch, value_label=value_label)
-        else:
-            utils.plot_records(
-                self.records.to_dict(orient='list'),
-                self.epoch, value_label=value_label)
+    def _predict(self, data):
+
+        prepro = self.preprocess(data)
+        return self.model(prepro)
 
     def backup(self):
-        utils.dump_variable(self, 'backup/' + self.id + '_' + str(self.epoch) + '.model')
+
+        utils.dump_variable(self, 'backup/' + self.id +
+                            '_' + str(self.epoch) + '.model')
 
     def merge_local_record(self):
 
@@ -82,10 +94,7 @@ class TrainHelper:
 
         self.scheduler.step(x)
 
-    def train(self, dlr: DataLoader, EPOCH: int, print_on_each=0, append_record=True):
-
-        if not append_record:
-            self._init_record()
+    def train(self, dlr: DataLoader, EPOCH: int):
 
         if len(self.localRecord) > 0:
             raise Exception("Record in last train not merged !")
@@ -102,10 +111,6 @@ class TrainHelper:
                 time_cost.append(t)
 
             self._add_record_to_local(loss_values, time_cost)
-
-            if print_on_each > 0 and epoch % print_on_each == 0:
-                print(epoch, "\t| Mean loss:",
-                      self.localRecord[epoch]['loss_mean'])
 
             if self.scheduler is not None:
                 self.step_scheduler(self.localRecord[epoch]['loss_mean'])

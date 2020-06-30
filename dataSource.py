@@ -89,3 +89,26 @@ def get_rand_data(dim=tuple, isInt=False, maxXY=1, minXY=0) -> Tensor:
         return torch.randint(minXY, maxXY, dim).double()
 
     return torch.rand(dim) * (maxXY - minXY) + minXY
+
+
+def custom_distance(N, d, sample_size: int, isInt=False, sample_space=(1, 0), 
+                    dist_func=lambda p1, p2: torch.sum((p2 - p1)** 2)** 0.5):
+        
+    dm = torch.zeros(sample_size, N, N)
+
+    coords = get_rand_data((sample_size, N, d), isInt=isInt,
+                           maxXY=sample_space[0],
+                           minXY=sample_space[1])
+
+    for b in range(sample_size):
+        for i in range(N):
+            for j in range(i + 1, N):
+                dm[b][j][i] = dm[b][i][j] = dist_func(coords[b][i], coords[b][j])
+
+    return coords, dm
+
+if __name__ == "__main__":
+    dist_func = lambda p1, p2: abs((p1[0] + 2 * p1[1]) - (p2[0] + 2 * p2[1]))
+    
+    print(*custom_distance(5, 2, 1000, isInt=True,
+            sample_space=(10, 1), dist_func=dist_func), sep='\n\n')

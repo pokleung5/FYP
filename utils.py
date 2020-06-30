@@ -26,11 +26,12 @@ def eignmatrix(dm: Tensor) -> Tensor:
         vals[i] = vals[i][rank[i]]
         vects[i] = vects[i][:, rank[i]]
 
+    vals = numpy.sign(vals) * numpy.sqrt(numpy.abs(vals))
     gap = numpy.arange(0, N * 2, 2)
 
     dm = numpy.zeros((batch, N, N * 2))
     dm[:, :, gap] = vals.reshape(batch, 1, N)
-    dm[:, :, gap + 1] = vects ** 2
+    dm[:, :, gap + 1] = vects
     
     return torch.tensor(dm)
 

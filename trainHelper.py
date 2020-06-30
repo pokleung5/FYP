@@ -25,7 +25,7 @@ torch.set_default_tensor_type('torch.DoubleTensor')
 
 class TrainHelper:
 
-    def __init__(self, id, model, optimizer, lossFun, preprocess, lr_factor=0.1):
+    def __init__(self, id, model, optimizer, lossFun, preprocess=None, lr_factor=0.1):
 
         self.id = id
         self.model = model
@@ -76,8 +76,10 @@ class TrainHelper:
 
     def _predict(self, data):
 
-        prepro = self.preprocess(data)
-        return self.model(prepro)
+        if self.preprocess is not None:
+            data = self.preprocess(data)
+
+        return self.model(data)
 
     def backup(self):
 

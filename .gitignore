@@ -1,4 +1,7 @@
 .vscode
 .mypy_cache
+.bin
+
+**/.bin
 
 *.pyc

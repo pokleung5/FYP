@@ -1,0 +1,10 @@
+Training Coord_1aRNN_E_MSE_2_28
+2020-06-30 13:26:43.000294 | Epoch 100 | Train Loss: 1.128589 | Test Loss: 2.267352 | Lr: 10e-3
+2020-06-30 13:32:34.483688 | Epoch 200 | Train Loss: 1.090860 | Test Loss: 2.236338 | Lr: 10e-3
+2020-06-30 13:38:43.833574 | Epoch 300 | Train Loss: 1.077794 | Test Loss: 2.237972 | Lr: 10e-3
+2020-06-30 13:43:39.916356 | Epoch 400 | Train Loss: 1.065553 | Test Loss: 2.231027 | Lr: 10e-4
+2020-06-30 13:48:35.206767 | Epoch 500 | Train Loss: 1.064395 | Test Loss: 2.231655 | Lr: 10e-8
+Training Coord_1aRNN_E_MSE_2_28
+Training Coord_1aRNN_E_MSE_2_28
+2020-06-30 14:32:49.810461 | Epoch 100 | Train Loss: 1.103304 | Test Loss: 2.199162 | Lr: 10e-3
+2020-06-30 14:39:26.109187 | Epoch 200 | Train Loss: 1.078430 | Test Loss: 2.191646 | Lr: 10e-3

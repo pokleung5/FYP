@@ -19,8 +19,8 @@ test_data = utils.minmax_norm(test_data, dmin=0)[0]
 
 def test(helper, test_data):
 
-    rs = helper._predict(test_data)
-    loss = helper.lossFun(rs, test_data)
+    rs, target = helper._predict(test_data)
+    loss = helper.lossFun(rs, target)
 
     return loss / test_data.size()[0]
 

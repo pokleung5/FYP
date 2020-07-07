@@ -37,7 +37,7 @@ class AutoEncoder(nn.Module):
         d = self.decoder(x)
         return d
     
-    def forward(self, x, same_encoder=True):
+    def forward(self, x):
 
         e = self.encode(x)
         d = self.decode(e)

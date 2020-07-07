@@ -23,7 +23,7 @@ import model.RNN as rnn
 from shutil import copyfile
 
 # %%
-data = dataSource.load_data(shape=(ss, N, d))[0]
+data = dataSource.load_data(shape=(ss, N, d))[1]
 data = utils.minmax_norm(data, dmin=0)[0]
 
 dlr = DataLoader(data, batch_size=batch, shuffle=True)
@@ -35,7 +35,7 @@ train_id = '_'.join(['Recon', 'AE', 'dNoise', '2MSE'])
 coordLoss = CoordsToDMLoss(N, 2, lossFun=nn.MSELoss(reduction='sum'))
 reconLoss = ReconLoss(lossFun=nn.MSELoss(reduction='sum'))
 
-lossFun = MultiLoss(lossFunList=[None, reconLoss])
+lossFun = MultiLoss(lossFunList=[coordLoss, reconLoss])
 
 preprocess = preprocess_d_noise
 

@@ -3,8 +3,7 @@ from torch import Tensor, tensor
 
 def get_distance_matrix(pl: Tensor) -> Tensor:
 
-    if len(pl.size()) < 3:
-        pl = pl.view(1, pl.size()[0], pl.size()[1])
+    pl = pl.view(-1, pl.size()[-2], pl.size()[-1])
 
     N = pl.size()[1]
 

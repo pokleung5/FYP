@@ -52,7 +52,7 @@ class EignModel(nn.Module):
         
         e_concat = torch.stack([e1, e2], dim=-1).view(batch, N, -1)
         
-        rs = self.final_encoder(e_concat)
+        e3 = self.final_encoder(e_concat)
 
         if self.final_act is not None:
             e3 = self.final_act(e3)

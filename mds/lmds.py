@@ -26,6 +26,9 @@ def landmarkMDS(dist: numpy.array, L=0, D=2, r=None):
     vals = vals[rank]
     vects = vects[:, rank]
 
+    if vals[-1] < 0:
+        return None
+        
     Lh = vects.dot(numpy.diag(1 / numpy.sqrt(vals))).T
     Dm = dM ** 0.5 - numpy.tile(numpy.mean(lmD ** 0.5, axis=1), (N, 1)).T
 

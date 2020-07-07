@@ -5,14 +5,11 @@ from matplotlib.figure import Figure
 
 from tkinter import *
 
-from mds.cmds import classicalMDS
-from mds.lmds import landmarkMDS
-from mds.fastmap import fastmap
 import numpy
 import torch
 
-import utils
-import dataSource
+import utils, dataSource, manifold
+
 import matplotlib.cm as cm
 
 matplotlib.use('TkAgg')
@@ -21,12 +18,7 @@ torch.set_default_tensor_type('torch.DoubleTensor')
 font = {'size': 7}
 matplotlib.rc('font', **font)
 
-methods = {'Classical MDS': classicalMDS,
-            'Lankmark MDS': landmarkMDS,
-            'Fastmap': fastmap
-            }
-
-methods_name = [*methods.keys()]
+color = ['g', 'y', 'r', 'c', 'm']
 
 class Application:
 
@@ -36,6 +28,19 @@ class Application:
         self.d = d
 
         self.master = master
+        
+        self.etm = manifold.Algorithm(N, d)
+        # self.etm.use_pretrained_model('result\Coord_StepLinear_E2_3MSE_5_82_400.model')
+        
+        self.methods = {'Classical MDS':    self.etm.classicalMDS,
+                        'Landmark MDS':     self.etm.landmarkMDS,
+                        'Non-Metric MDS':   self.etm.nonMetricMDS,
+                        'Fastmap':          self.etm.fastmap,
+                        'Deep MDS':          self.etm.deepMDS
+                    }
+
+        self.methods_name = [*self.methods.keys()]
+        self.methods_color = dict(zip(self.methods_name, color[:len(self.methods_name)]))
 
         self.dot_list = {}
         self.anno_list = {}
@@ -70,7 +75,7 @@ class Application:
         btn_removeLabel = Button(plotPane, text='Clear All Label', command=self._plotClear)
         btn_removeLabel.grid(
                 row=3, column=2, columnspan=1, pady=10, padx=(0, 30), sticky='nesw')
-
+                
         return plotPane
 
     def _buildCoordPane(self):
@@ -105,7 +110,7 @@ class Application:
         self.opt_method = StringVar(self.master)
         self.opt_method.set('Select a method :')
 
-        meun_method = OptionMenu(coordPane, self.opt_method, *methods_name, command=self.btn_rsCoord_fun)
+        meun_method = OptionMenu(coordPane, self.opt_method, *self.methods_name, command=self.btn_rsCoord_fun)
         meun_method.grid(
             row=gridy, column=1, columnspan=gridy, pady=10, padx=10, sticky='ew')
         meun_method.config(width=20)
@@ -183,14 +188,24 @@ class Application:
         
         if method_name is None:
             method_name = self.opt_method.get()
+        
+        if method_name == 'Deep MDS':
+            model_path = filedialog.askopenfilename(
+                    initialdir=".", title="Select A Model", filetypes=(("Pretained Model", "*.model"), ("all files", "*.*")))
+            
+            if len(model_path) < 0:
+                return
+                
+            self.etm.use_pretrained_model(model_path)
 
-        try:
-            data = methods[method_name](dm)
-        except:
-            self.opt_method.set(method_name + ' failed to get result !')
-            self._fillEntry(data=numpy.zeros(self.N * self.d),
-                            entrylist=self.rsCoordViews)
-            return
+        data = self.methods[method_name](dm)
+        # try:
+        #     data = self.methods[method_name](dm)
+        # except:
+        #     self.opt_method.set(method_name + ' failed to get result !')
+        #     self._fillEntry(data=numpy.zeros(self.N * self.d),
+        #                     entrylist=self.rsCoordViews)
+        #     return
 
         data = torch.tensor(data)
         data = utils.minmax_norm(data.view(1, -1))[0]
@@ -267,7 +282,9 @@ class Application:
             self.dot_list.pop(label)
             self.anno_list.pop(label)
 
-        self.ax.legend()
+        if len(self.dot_list) > 0:
+            self.ax.legend()
+        
         self.canvas.draw()
     
     def _plotClear(self):
@@ -281,16 +298,15 @@ class Application:
         
         self._plotRemove(label)
     
-        self.dot_list[label] = self.ax.scatter(x, y, label=label)
+        self.dot_list[label] = self.ax.scatter(x, y, label=label, c=self.methods_color[label])
         
         for i in range(self.N):
             anno.append(self.ax.annotate(i, (x[i], y[i])))
         
-        self.anno_list[label] = anno
-        
+        self.anno_list[label] = anno        
         self.ax.legend()
         self.canvas.draw()
-
+    
     def _colorize_diff(self, entrylist):
 
         try:
@@ -300,7 +316,7 @@ class Application:
             
         diff = numpy.abs(diff)
         
-        color = 40 + int(150 - 40) * diff
+        color = 30 + int(150 - 30) * diff
         
         for i in range(len(color)):
 
@@ -322,3 +338,8 @@ maxXY, minXY = (1000, 1)
 app = Application(N=10, d=2, master=root)
 
 root.mainloop()
+
+def shutdown():
+    app.destroy()
+    
+app.protocol("WM_DELETE_WINDOW", shutdown)

@@ -6,6 +6,7 @@ from torch import Tensor, tensor
 from torch import nn
 from torch.nn import functional as F
 
+
 def sammon_loss(result, target):
     
     r = result.view_as(target)
@@ -26,71 +27,86 @@ def sammon_loss(result, target):
 
     return torch.sum(c)
 
+
+class CustomLoss(nn.Module):
+
+    def __init__(self, lossFun: torch.nn.modules.loss._Loss, scale=True):
+        
+        super(CustomLoss, self).__init__()
+        self.lossFun = lossFun
+        self.scale = scale
+    
+    def forward(self, rs, target):
+
+        rs = utils.minmax_norm(rs, dmin=0)[0]
+        target = utils.minmax_norm(target, dmin=0)[0]
+
+        return self.lossFun(rs, target)
+        
+
+
 class MultiLoss(nn.Module):
 
-    def __init__(self, lossFunList: list):
+    def __init__(self, lossFunList: list, weight=None):
         
         super(MultiLoss, self).__init__()
 
         self.lossFunList = lossFunList
+        self.weight = torch.ones(len(lossFunList)) if weight is None else torch.tensor(weight)
 
-    def forward(self, rs, target_dm):
+    def forward(self, rs, target):
 
-        rs = list(rs) if type(rs) is tuple else [rs]
+        rs = list(rs) if type(rs) is tuple else rs if type(rs) is list else [rs] 
 
         loss = []
         
         for i in range(len(self.lossFunList)):
 
             if self.lossFunList[i] is not None:
-                loss.append(self.lossFunList[i](rs[i], target_dm))
+                loss.append(self.lossFunList[i](rs[i], target) * self.weight[i])
+        
+        loss = torch.stack(loss)
+        loss = torch.abs(loss)
+        
+        return torch.sum(loss)
 
-        return torch.sum(torch.stack(loss))
 
+class CoordsToDMLoss(CustomLoss):
 
-class CoordsToDMLoss(nn.Module):
+    def __init__(self, N, lossFun):
 
-    def __init__(self, N, d, lossFun):
-        super(CoordsToDMLoss, self).__init__()
-
+        super(CoordsToDMLoss, self).__init__(lossFun)
         self.N = N
-        self.d = d
-        self.lossFun = lossFun
 
-    def forward(self, rs, target_dm):
+    def forward(self, rs, target):
 
-        batch = target_dm.size()[0]
+        batch = target.size()[0]
 
-        rs = rs.view(batch, self.N, self.d)
+        rs = rs.view(batch, self.N, -1)
 
         rs_dm = utils.get_distanceSq_matrix(rs)
-        rs_dm = rs_dm.view_as(target_dm)
+        rs_dm = rs_dm.view_as(target)
         
         rs_dist = utils.vectorize_distance_from_DM(rs_dm)
-        rs_dist = torch.sqrt(rs_dist + 1e-8)
-        rs_dist = utils.minmax_norm(rs_dist, dmin=0)[0]
+        rs_dist = torch.sqrt(rs_dist + 1e-16)
         
-        target_dist = utils.vectorize_distance_from_DM(target_dm)
+        target_dist = utils.vectorize_distance_from_DM(target)
 
-        return self.lossFun(rs_dist, target_dist)
+        return super(CoordsToDMLoss, self).forward(rs_dist, target_dist)
 
 
-class ReconLoss(nn.Module):
+class ReconLoss(CustomLoss):
 
     def __init__(self, lossFun):
 
-        super(ReconLoss, self).__init__()
+        super(ReconLoss, self).__init__(lossFun)
 
-        self.lossFun = lossFun
+    def forward(self, rs, target):
 
-    def forward(self, rs, target_dm):
+        rs_dist = F.softplus(rs) # avoid negative distance value    
+        target_dist = utils.vectorize_distance_from_DM(target)
 
-        rs_dist = F.softplus(rs) # avoid negative distance value
-        rs_dist = utils.minmax_norm(rs_dist, dmin=0)[0]
-    
-        target_dist = utils.vectorize_distance_from_DM(target_dm)
-
-        return self.lossFun(rs_dist, target_dist)
+        return super(ReconLoss, self).forward(rs_dist, target_dist)
 
 
 class VAELoss(nn.Module):
@@ -105,7 +121,8 @@ class VAELoss(nn.Module):
         self.reduction = reduction
         
 
-    def __call__(self, rs: tuple, target: Tensor): 
+    def __call__(self, rs: tuple, target: Tensor):
+        
         d, mu, logvar = rs
         
         decodeLoss = self.lossFun(d, target)

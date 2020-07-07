@@ -56,19 +56,20 @@ if __name__ == "__main__":
     
     dm = utils.get_distanceSq_matrix(pts) ** 0.5
     dm = torch.tensor([[
-            [0, 3, 4],
-            [3, 0, 5],
-            [4, 5, 0]
+            [0, 13, 52, 50],
+            [13, 0, 17, 41],
+            [52, 17, 0, 26],
+            [50, 41, 26, 0.0]
         ]])
 
-    dm = utils.minmax_norm(dm)[0]
+    # dm = utils.minmax_norm(dm)[0]
     print(dm)
     
     dm = np.array(dm[0].data)
-    rs = classicalMDS(dm, 2)
-    rs = torch.tensor(rs)
+    rs = classicalMDS(dm, 0)
     print(rs)
 
+    rs = torch.tensor(rs)
     rs_dm = utils.get_distanceSq_matrix(rs) ** 0.5
     rs_dm = utils.minmax_norm(rs_dm)[0]
     print(rs_dm)

@@ -11,14 +11,39 @@ import numpy
 from matplotlib import pyplot as plt
 # %%
 
-def eignmatrix(dm: Tensor) -> Tensor:
-    
-    batch, N = dm.size()[:2]
+def doubleCentering(dm: Tensor) -> Tensor:
+
+    batch, N = dm.size()[0], dm.size()[-1]
 
     J = torch.eye(N) -  torch.ones((N, N)) / N
-    B =  -0.5 * torch.matmul(torch.matmul(J, dm ** 2), J)
+    B = -0.5 * torch.matmul(torch.matmul(J, dm ** 2), J)
 
-    vals, vects = numpy.linalg.eig(B.detach().numpy())
+    return B
+
+def eignmatrix2(dm: Tensor) -> Tensor:
+    
+    batch, N = dm.size()[0], dm.size()[-1]
+
+    B = doubleCentering(dm)
+    vals, vects = numpy.linalg.eigh(B.detach().numpy())
+    
+    rank = numpy.argsort(-1 * vals)
+
+    for i in range(batch):
+        vals[i] = vals[i][rank[i]]
+        vects[i] = vects[i][:, rank[i]]
+
+    vals = numpy.sign(vals) * numpy.sqrt(numpy.abs(vals))
+
+    return torch.tensor(vals.reshape(batch, 1, N) * vects)
+
+
+def eignmatrix(dm: Tensor) -> Tensor:
+    
+    batch, N = dm.size()[0], dm.size()[-1]
+
+    B = doubleCentering(dm)
+    vals, vects = numpy.linalg.eigh(B.detach().numpy())
     
     rank = numpy.argsort(-1 * vals)
 
@@ -80,8 +105,7 @@ def load_variable(path: str):
 
 def get_distanceSq_matrix(pl: Tensor) -> Tensor:
 
-    if len(pl.size()) < 3:
-        pl = pl.view(1, pl.size()[0], pl.size()[1])
+    pl = pl.view(-1, pl.size()[-2], pl.size()[-1])
 
     N = pl.size()[1]
 

@@ -91,24 +91,49 @@ def get_rand_data(dim=tuple, isInt=False, maxXY=1, minXY=0) -> Tensor:
     return torch.rand(dim) * (maxXY - minXY) + minXY
 
 
-def custom_distance(N, d, sample_size: int, isInt=False, sample_space=(1, 0), 
+def custom_distance(N, n_arg, sample_size: int, isInt=False, sample_space=(1, 0), 
                     dist_func=lambda p1, p2: torch.sum((p2 - p1)** 2)** 0.5):
         
     dm = torch.zeros(sample_size, N, N)
 
-    coords = get_rand_data((sample_size, N, d), isInt=isInt,
+    coords = get_rand_data((sample_size, N, n_arg), isInt=isInt,
                            maxXY=sample_space[0],
                            minXY=sample_space[1])
 
     for b in range(sample_size):
         for i in range(N):
             for j in range(i + 1, N):
-                dm[b][j][i] = dm[b][i][j] = dist_func(coords[b][i], coords[b][j])
+                dm[b][j][i] = dm[b][i][j] = dist_func(coords[b][i], coords[b][j], b)
 
-    return coords, dm
+    return dm.view(sample_size, 1, N, N)
+
 
 if __name__ == "__main__":
-    dist_func = lambda p1, p2: abs((p1[0] + 2 * p1[1]) - (p2[0] + 2 * p2[1]))
+
+    import numpy 
+    from torch import nn
+    from mds.cmds import classicalMDS
+    from lossFunction import CoordsToDMLoss
+    torch.set_default_tensor_type('torch.DoubleTensor')
+
+
+    dist_func = lambda p1, p2: torch.sum(torch.abs((p2 - p1)))
     
-    print(*custom_distance(5, 2, 1000, isInt=True,
-            sample_space=(10, 1), dist_func=dist_func), sep='\n\n')
+    cus = custom_distance(10, 3, 1000, isInt=True, sample_space=(1000, 1), dist_func=dist_func)
+
+    lossFun = CoordsToDMLoss(N=10, d=2, lossFun=nn.L1Loss(reduction='mean'))
+    
+    coords, dms = cus
+
+    dms = utils.minmax_norm(dms, dmin=0)[0] + 1e-8
+    dms = dms.detach().requires_grad_(True)
+
+    cmds_rs = []
+
+    for d in dms:
+
+        d1 = numpy.array(d.data)
+        cmds_rs.append(torch.tensor(classicalMDS(d1, 2)))
+
+    cmds_rs = torch.stack(cmds_rs)
+    print("cmds_loss: \t", lossFun(cmds_rs, dms))

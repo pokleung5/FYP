@@ -8,3 +8,160 @@ Training Coord_1bRNN_E_MSE_2_28
 2020-06-30 14:32:54.465622 | Epoch 100 | Train Loss: 1.117976 | Test Loss: 2.230774 | Lr: 10e-3
 2020-06-30 14:39:12.752972 | Epoch 200 | Train Loss: 1.101728 | Test Loss: 2.210211 | Lr: 10e-6
 2020-06-30 14:44:59.757532 | Epoch 300 | Train Loss: 1.101709 | Test Loss: 2.210224 | Lr: 10e-8
+2020-06-30 14:50:11.456800 | Epoch 400 | Train Loss: 1.101709 | Test Loss: 2.210224 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_1bRNN_E_MSE_3_28
+2020-06-30 14:56:52.024949 | Epoch 100 | Train Loss: 1.101263 | Test Loss: 2.208354 | Lr: 10e-3
+Training Coord_1bRNN_E_MSE_2_28
+Training Coord_1bRNN_E_MSE_2_28
+2020-06-30 17:46:34.270061 | Epoch 100 | Train Loss: 1.125532 | Test Loss: 2.262164 | Lr: 10e-3
+2020-06-30 17:51:02.664194 | Epoch 200 | Train Loss: 1.109703 | Test Loss: 2.232993 | Lr: 10e-4
+2020-06-30 17:55:24.478420 | Epoch 300 | Train Loss: 1.107416 | Test Loss: 2.229448 | Lr: 10e-8
+2020-06-30 17:59:46.408307 | Epoch 400 | Train Loss: 1.107416 | Test Loss: 2.229448 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_1bRNN_E_MSE_3_28
+2020-06-30 18:04:20.619210 | Epoch 100 | Train Loss: 1.125795 | Test Loss: 2.277425 | Lr: 10e-3
+2020-06-30 18:08:54.941388 | Epoch 200 | Train Loss: 1.103346 | Test Loss: 2.235235 | Lr: 10e-3
+2020-06-30 18:13:29.607364 | Epoch 300 | Train Loss: 1.091662 | Test Loss: 2.216954 | Lr: 10e-7
+2020-06-30 18:18:05.012019 | Epoch 400 | Train Loss: 1.091661 | Test Loss: 2.216962 | Lr: 10e-8
+2020-06-30 18:22:40.413001 | Epoch 500 | Train Loss: 1.091660 | Test Loss: 2.216964 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_1bRNN_E_MSE_4_28
+2020-06-30 18:27:31.779542 | Epoch 100 | Train Loss: 1.090344 | Test Loss: 2.195387 | Lr: 10e-3
+2020-06-30 18:32:22.387352 | Epoch 200 | Train Loss: 1.063486 | Test Loss: 2.170851 | Lr: 10e-4
+2020-06-30 18:37:11.530169 | Epoch 300 | Train Loss: 1.059905 | Test Loss: 2.172095 | Lr: 10e-4
+2020-06-30 18:41:59.785017 | Epoch 400 | Train Loss: 1.058395 | Test Loss: 2.171260 | Lr: 10e-8
+2020-06-30 18:46:48.271319 | Epoch 500 | Train Loss: 1.058395 | Test Loss: 2.171265 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_1bRNN_E_MSE_5_28
+2020-06-30 18:51:47.745210 | Epoch 100 | Train Loss: 1.104045 | Test Loss: 2.252522 | Lr: 10e-3
+2020-06-30 18:56:47.203403 | Epoch 200 | Train Loss: 1.083657 | Test Loss: 2.201394 | Lr: 10e-3
+2020-06-30 19:01:47.051153 | Epoch 300 | Train Loss: 1.066561 | Test Loss: 2.189701 | Lr: 10e-5
+2020-06-30 19:06:48.374213 | Epoch 400 | Train Loss: 1.066324 | Test Loss: 2.189086 | Lr: 10e-8
+2020-06-30 19:11:49.596229 | Epoch 500 | Train Loss: 1.066324 | Test Loss: 2.189085 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_1bRNN_E_MSE_2_44
+2020-06-30 19:16:17.369630 | Epoch 100 | Train Loss: 1.104684 | Test Loss: 2.224080 | Lr: 10e-3
+2020-06-30 19:20:44.441577 | Epoch 200 | Train Loss: 1.091331 | Test Loss: 2.202096 | Lr: 10e-4
+2020-06-30 19:25:14.130024 | Epoch 300 | Train Loss: 1.090103 | Test Loss: 2.201986 | Lr: 10e-8
+2020-06-30 19:29:40.370050 | Epoch 400 | Train Loss: 1.090103 | Test Loss: 2.201987 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_1bRNN_E_MSE_3_44
+2020-06-30 19:34:20.116784 | Epoch 100 | Train Loss: 1.092402 | Test Loss: 2.204790 | Lr: 10e-3
+2020-06-30 19:38:59.585853 | Epoch 200 | Train Loss: 1.076561 | Test Loss: 2.193991 | Lr: 10e-3
+2020-06-30 19:43:39.037715 | Epoch 300 | Train Loss: 1.062177 | Test Loss: 2.181463 | Lr: 10e-4
+2020-06-30 19:48:18.277218 | Epoch 400 | Train Loss: 1.060502 | Test Loss: 2.181368 | Lr: 10e-8
+2020-06-30 19:52:57.647431 | Epoch 500 | Train Loss: 1.060502 | Test Loss: 2.181367 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_1bRNN_E_MSE_4_44
+2020-06-30 19:57:50.642202 | Epoch 100 | Train Loss: 1.078558 | Test Loss: 2.207403 | Lr: 10e-3
+2020-06-30 20:02:44.195831 | Epoch 200 | Train Loss: 1.060715 | Test Loss: 2.193372 | Lr: 10e-3
+2020-06-30 20:07:40.592183 | Epoch 300 | Train Loss: 1.048418 | Test Loss: 2.190962 | Lr: 10e-3
+2020-06-30 20:12:34.795886 | Epoch 400 | Train Loss: 1.033833 | Test Loss: 2.191404 | Lr: 10e-6
+2020-06-30 20:17:29.644044 | Epoch 500 | Train Loss: 1.033813 | Test Loss: 2.191413 | Lr: 10e-8
+2020-06-30 20:22:24.133678 | Epoch 600 | Train Loss: 1.033813 | Test Loss: 2.191413 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_1bRNN_E_MSE_5_44
+2020-06-30 20:27:31.281266 | Epoch 100 | Train Loss: 1.079968 | Test Loss: 2.191070 | Lr: 10e-3
+2020-06-30 20:32:39.986188 | Epoch 200 | Train Loss: 1.056963 | Test Loss: 2.174967 | Lr: 10e-3
+2020-06-30 20:37:48.290226 | Epoch 300 | Train Loss: 1.043137 | Test Loss: 2.179793 | Lr: 10e-3
+2020-06-30 20:42:56.822582 | Epoch 400 | Train Loss: 1.022693 | Test Loss: 2.182280 | Lr: 10e-4
+2020-06-30 20:48:05.418859 | Epoch 500 | Train Loss: 1.019746 | Test Loss: 2.185793 | Lr: 10e-8
+2020-06-30 20:53:13.100361 | Epoch 600 | Train Loss: 1.019745 | Test Loss: 2.185799 | Lr: 10e-8
+Overfitting !
+
+Training Coord_1bRNN_E_MSE_2_60
+2020-06-30 20:57:41.891850 | Epoch 100 | Train Loss: 1.105429 | Test Loss: 2.230029 | Lr: 10e-3
+2020-06-30 21:02:10.211765 | Epoch 200 | Train Loss: 1.089756 | Test Loss: 2.203725 | Lr: 10e-4
+2020-06-30 21:06:38.648239 | Epoch 300 | Train Loss: 1.088526 | Test Loss: 2.203169 | Lr: 10e-8
+2020-06-30 21:11:08.751020 | Epoch 400 | Train Loss: 1.088526 | Test Loss: 2.203168 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_1bRNN_E_MSE_3_60
+2020-06-30 21:15:54.032012 | Epoch 100 | Train Loss: 1.076857 | Test Loss: 2.178943 | Lr: 10e-3
+2020-06-30 21:20:38.431716 | Epoch 200 | Train Loss: 1.057705 | Test Loss: 2.180322 | Lr: 10e-3
+2020-06-30 21:25:22.677106 | Epoch 300 | Train Loss: 1.042395 | Test Loss: 2.178322 | Lr: 10e-4
+2020-06-30 21:30:08.386906 | Epoch 400 | Train Loss: 1.040513 | Test Loss: 2.176307 | Lr: 10e-8
+2020-06-30 21:34:55.763463 | Epoch 500 | Train Loss: 1.040513 | Test Loss: 2.176311 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_1bRNN_E_MSE_4_60
+2020-06-30 21:39:58.405431 | Epoch 100 | Train Loss: 1.064785 | Test Loss: 2.187042 | Lr: 10e-3
+2020-06-30 21:45:00.726176 | Epoch 200 | Train Loss: 1.039602 | Test Loss: 2.191468 | Lr: 10e-3
+2020-06-30 21:50:01.529795 | Epoch 300 | Train Loss: 1.015528 | Test Loss: 2.195464 | Lr: 10e-4
+2020-06-30 21:55:03.230983 | Epoch 400 | Train Loss: 1.013013 | Test Loss: 2.204518 | Lr: 10e-4
+Overfitting !
+
+Training Coord_1bRNN_E_MSE_5_60
+2020-06-30 22:00:21.170800 | Epoch 100 | Train Loss: 1.073730 | Test Loss: 2.183288 | Lr: 10e-3
+2020-06-30 22:05:38.558965 | Epoch 200 | Train Loss: 1.040993 | Test Loss: 2.187353 | Lr: 10e-3
+2020-06-30 22:10:57.122498 | Epoch 300 | Train Loss: 1.012094 | Test Loss: 2.192079 | Lr: 10e-4
+2020-06-30 22:16:14.571441 | Epoch 400 | Train Loss: 1.007767 | Test Loss: 2.203930 | Lr: 10e-4
+Overfitting !
+
+Training Coord_1bRNN_E_MSE_2_76
+2020-06-30 22:20:45.865449 | Epoch 100 | Train Loss: 1.092734 | Test Loss: 2.208058 | Lr: 10e-3
+2020-06-30 22:25:17.672976 | Epoch 200 | Train Loss: 1.076173 | Test Loss: 2.191660 | Lr: 10e-6
+2020-06-30 22:29:49.412667 | Epoch 300 | Train Loss: 1.076149 | Test Loss: 2.191621 | Lr: 10e-8
+2020-06-30 22:34:22.255124 | Epoch 400 | Train Loss: 1.076148 | Test Loss: 2.191626 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_1bRNN_E_MSE_3_76
+2020-06-30 22:40:00.372438 | Epoch 100 | Train Loss: 1.069723 | Test Loss: 2.191091 | Lr: 10e-3
+2020-06-30 22:46:43.318012 | Epoch 200 | Train Loss: 1.049249 | Test Loss: 2.178206 | Lr: 10e-3
+2020-06-30 22:53:31.364450 | Epoch 300 | Train Loss: 1.030262 | Test Loss: 2.180531 | Lr: 10e-4
+2020-06-30 22:59:55.344114 | Epoch 400 | Train Loss: 1.027845 | Test Loss: 2.183221 | Lr: 10e-8
+2020-06-30 23:06:31.697216 | Epoch 500 | Train Loss: 1.027845 | Test Loss: 2.183224 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_1bRNN_E_MSE_4_76
+2020-06-30 23:14:30.508777 | Epoch 100 | Train Loss: 1.070986 | Test Loss: 2.193464 | Lr: 10e-3
+2020-06-30 23:21:55.831202 | Epoch 200 | Train Loss: 1.036758 | Test Loss: 2.194693 | Lr: 10e-3
+2020-06-30 23:28:57.222357 | Epoch 300 | Train Loss: 1.020173 | Test Loss: 2.211631 | Lr: 10e-3
+2020-06-30 23:35:44.428773 | Epoch 400 | Train Loss: 1.001142 | Test Loss: 2.235115 | Lr: 10e-4
+Overfitting !
+
+Training Coord_1bRNN_E_MSE_5_76
+2020-06-30 23:43:14.299276 | Epoch 100 | Train Loss: 1.056622 | Test Loss: 2.181756 | Lr: 10e-3
+2020-06-30 23:50:55.504869 | Epoch 200 | Train Loss: 1.018945 | Test Loss: 2.198030 | Lr: 10e-3
+2020-06-30 23:58:03.629414 | Epoch 300 | Train Loss: 0.994135 | Test Loss: 2.233821 | Lr: 10e-3
+2020-07-01 00:05:12.882960 | Epoch 400 | Train Loss: 0.981290 | Test Loss: 2.253173 | Lr: 10e-3
+Overfitting !
+
+Training Coord_1bRNN_E_MSE_2_92
+2020-07-01 00:11:17.798550 | Epoch 100 | Train Loss: 1.090218 | Test Loss: 2.196406 | Lr: 10e-3
+2020-07-01 00:17:18.840066 | Epoch 200 | Train Loss: 1.073304 | Test Loss: 2.184174 | Lr: 10e-4
+2020-07-01 00:23:18.194152 | Epoch 300 | Train Loss: 1.071445 | Test Loss: 2.183053 | Lr: 10e-8
+2020-07-01 00:29:23.966647 | Epoch 400 | Train Loss: 1.071445 | Test Loss: 2.183057 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_1bRNN_E_MSE_3_92
+2020-07-01 00:35:28.059141 | Epoch 100 | Train Loss: 1.064442 | Test Loss: 2.191249 | Lr: 10e-3
+2020-07-01 00:42:34.353976 | Epoch 200 | Train Loss: 1.041055 | Test Loss: 2.190309 | Lr: 10e-3
+2020-07-01 00:50:07.893236 | Epoch 300 | Train Loss: 1.029988 | Test Loss: 2.203694 | Lr: 10e-3
+2020-07-01 00:57:00.195481 | Epoch 400 | Train Loss: 1.015009 | Test Loss: 2.204823 | Lr: 10e-4
+Overfitting !
+
+Training Coord_1bRNN_E_MSE_4_92
+2020-07-01 01:05:04.673071 | Epoch 100 | Train Loss: 1.046685 | Test Loss: 2.200630 | Lr: 10e-3
+2020-07-01 01:13:29.334378 | Epoch 200 | Train Loss: 1.009105 | Test Loss: 2.230918 | Lr: 10e-3
+2020-07-01 01:20:41.499614 | Epoch 300 | Train Loss: 0.992775 | Test Loss: 2.248532 | Lr: 10e-3
+2020-07-01 01:27:05.367107 | Epoch 400 | Train Loss: 0.973465 | Test Loss: 2.262662 | Lr: 10e-4
+Overfitting !
+
+Training Coord_1bRNN_E_MSE_5_92
+2020-07-01 01:33:33.327067 | Epoch 100 | Train Loss: 1.050987 | Test Loss: 2.205298 | Lr: 10e-3
+2020-07-01 01:39:53.614765 | Epoch 200 | Train Loss: 1.007633 | Test Loss: 2.237928 | Lr: 10e-3
+2020-07-01 01:48:23.814551 | Epoch 300 | Train Loss: 0.984709 | Test Loss: 2.260708 | Lr: 10e-3
+2020-07-01 01:59:43.729301 | Epoch 400 | Train Loss: 0.960235 | Test Loss: 2.287903 | Lr: 10e-4
+Overfitting !
+
+Training Coord_1bRNN_E_MSE_2_28

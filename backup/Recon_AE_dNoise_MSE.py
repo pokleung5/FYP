@@ -23,7 +23,7 @@ import model.RNN as rnn
 from shutil import copyfile
 
 # %%
-data = dataSource.load_data(shape=(ss, N, d))[0]
+data = dataSource.load_data(shape=(ss, N, d))[1]
 data = utils.minmax_norm(data, dmin=0)[0]
 
 dlr = DataLoader(data, batch_size=batch, shuffle=True)

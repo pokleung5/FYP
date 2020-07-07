@@ -40,16 +40,28 @@ class TrainHelper:
             self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
                 optimizer, 'min', factor=lr_factor, verbose=False)
 
-        self._init_record()
+        self.__init_record()
 
-    def _init_record(self):
+    # def __init__(self, helper):
+
+    #     self.id = helper.id
+    #     self.model = helper.model
+    #     self.optim = helper.optim
+    #     self.lossFun = helper.lossFun
+    #     self.preprocess = helper.preprocess
+    #     self.scheduler = helper.scheduler
+    #     self.epoch = helper.epoch
+    #     self.records = helper.records
+    #     self.localRecord = helper.localRecord
+
+    def __init_record(self):
 
         self.epoch = 0
         self.records = pandas.DataFrame(
             columns=['lr', 'loss_mean', 'loss_max', 'loss_min', 'train_time'])
         self.localRecord = []
 
-    def _add_record_to_local(self, loss_values, time_cost):
+    def __add_record_to_local(self, loss_values, time_cost):
 
         r = [self.optim.param_groups[0]['lr'],
              numpy.mean(loss_values), numpy.max(
@@ -58,13 +70,13 @@ class TrainHelper:
 
         self.localRecord.append(dict(zip(self.records.columns, r)))
 
-    def _train(self, data: Tensor):
+    def __train(self, data: Tensor):
 
         self.optim.zero_grad()
 
-        rs = self._predict(data)
+        rs, target = self._predict(data)
 
-        loss = self.lossFun(rs, data.data)
+        loss = self.lossFun(rs, target.data)
 
         if loss != loss:
             raise Exception("Gradient Disconnected !")
@@ -76,10 +88,12 @@ class TrainHelper:
 
     def _predict(self, data):
 
-        if self.preprocess is not None:
-            data = self.preprocess(data)
+        target = data
 
-        return self.model(data)
+        if self.preprocess is not None:
+            data, target = self.preprocess(data)
+
+        return self.model(data), target
 
     def backup(self):
 
@@ -107,12 +121,12 @@ class TrainHelper:
 
             for step, data in enumerate(dlr):
 
-                loss, t = utils.time_measure(self._train, [data])
+                loss, t = utils.time_measure(self.__train, [data])
 
                 loss_values.append(loss.data)
                 time_cost.append(t)
 
-            self._add_record_to_local(loss_values, time_cost)
+            self.__add_record_to_local(loss_values, time_cost)
 
             if self.scheduler is not None:
                 self.step_scheduler(self.localRecord[epoch]['loss_mean'])

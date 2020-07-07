@@ -1,0 +1,148 @@
+Training Coord_StepLinear_E2_3MSE_2_18
+2020-07-05 04:55:15.586627 | Epoch 100 | Train Loss: 3.105878 | Test Loss: 6.242148 | Lr: 10e-3
+2020-07-05 05:02:41.345320 | Epoch 200 | Train Loss: 3.059774 | Test Loss: 6.148862 | Lr: 10e-3
+2020-07-05 05:10:07.206851 | Epoch 300 | Train Loss: 3.027632 | Test Loss: 6.092467 | Lr: 10e-7
+2020-07-05 05:17:32.252707 | Epoch 400 | Train Loss: 3.027629 | Test Loss: 6.092471 | Lr: 10e-8
+2020-07-05 05:24:58.039454 | Epoch 500 | Train Loss: 3.027629 | Test Loss: 6.092473 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_2_34
+2020-07-05 05:32:31.183222 | Epoch 100 | Train Loss: 3.034633 | Test Loss: 6.110026 | Lr: 10e-3
+2020-07-05 05:40:14.327192 | Epoch 200 | Train Loss: 2.970221 | Test Loss: 5.996810 | Lr: 10e-3
+2020-07-05 05:47:49.071699 | Epoch 300 | Train Loss: 2.939772 | Test Loss: 5.914484 | Lr: 10e-3
+2020-07-05 05:55:21.843666 | Epoch 400 | Train Loss: 2.913855 | Test Loss: 5.889249 | Lr: 10e-6
+2020-07-05 06:02:56.000210 | Epoch 500 | Train Loss: 2.913817 | Test Loss: 5.889356 | Lr: 10e-8
+2020-07-05 06:10:30.655041 | Epoch 600 | Train Loss: 2.913816 | Test Loss: 5.889363 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_2_50
+2020-07-05 06:17:33.101803 | Epoch 100 | Train Loss: 2.985114 | Test Loss: 6.036738 | Lr: 10e-3
+2020-07-05 06:23:41.764196 | Epoch 200 | Train Loss: 2.942562 | Test Loss: 5.984810 | Lr: 10e-3
+2020-07-05 06:29:48.138248 | Epoch 300 | Train Loss: 2.914580 | Test Loss: 5.929715 | Lr: 10e-7
+2020-07-05 06:35:54.218290 | Epoch 400 | Train Loss: 2.914576 | Test Loss: 5.929710 | Lr: 10e-8
+2020-07-05 06:42:02.829966 | Epoch 500 | Train Loss: 2.914576 | Test Loss: 5.929708 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_2_66
+2020-07-05 06:48:18.679393 | Epoch 100 | Train Loss: 2.918755 | Test Loss: 5.929676 | Lr: 10e-3
+2020-07-05 06:54:34.468436 | Epoch 200 | Train Loss: 2.895115 | Test Loss: 5.866786 | Lr: 10e-3
+2020-07-05 07:00:53.110531 | Epoch 300 | Train Loss: 2.865404 | Test Loss: 5.848701 | Lr: 10e-8
+2020-07-05 07:07:11.173072 | Epoch 400 | Train Loss: 2.865404 | Test Loss: 5.848698 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_2_82
+2020-07-05 07:13:34.697047 | Epoch 100 | Train Loss: 2.901668 | Test Loss: 5.875884 | Lr: 10e-3
+2020-07-05 07:19:59.987986 | Epoch 200 | Train Loss: 2.872323 | Test Loss: 5.841203 | Lr: 10e-3
+2020-07-05 07:26:25.124857 | Epoch 300 | Train Loss: 2.836188 | Test Loss: 5.820927 | Lr: 10e-5
+2020-07-05 07:32:48.951734 | Epoch 400 | Train Loss: 2.835802 | Test Loss: 5.820847 | Lr: 10e-8
+2020-07-05 07:39:14.115585 | Epoch 500 | Train Loss: 2.835801 | Test Loss: 5.820851 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_3_18
+2020-07-05 07:45:12.116853 | Epoch 100 | Train Loss: 3.173961 | Test Loss: 6.363814 | Lr: 10e-3
+2020-07-05 07:51:10.846390 | Epoch 200 | Train Loss: 3.151882 | Test Loss: 6.341809 | Lr: 10e-8
+2020-07-05 07:57:09.287540 | Epoch 300 | Train Loss: 3.151881 | Test Loss: 6.341810 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_3_34
+2020-07-05 08:03:12.473527 | Epoch 100 | Train Loss: 2.984517 | Test Loss: 6.004556 | Lr: 10e-3
+2020-07-05 08:09:13.941295 | Epoch 200 | Train Loss: 2.952488 | Test Loss: 5.941163 | Lr: 10e-3
+2020-07-05 08:15:17.082290 | Epoch 300 | Train Loss: 2.930679 | Test Loss: 5.928050 | Lr: 10e-8
+2020-07-05 08:21:19.988724 | Epoch 400 | Train Loss: 2.930679 | Test Loss: 5.928054 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_3_50
+2020-07-05 08:27:27.404686 | Epoch 100 | Train Loss: 2.951308 | Test Loss: 5.945715 | Lr: 10e-3
+2020-07-05 08:33:40.403809 | Epoch 200 | Train Loss: 2.897184 | Test Loss: 5.876732 | Lr: 10e-4
+2020-07-05 08:39:52.144397 | Epoch 300 | Train Loss: 2.894517 | Test Loss: 5.876148 | Lr: 10e-8
+2020-07-05 08:46:07.299251 | Epoch 400 | Train Loss: 2.894517 | Test Loss: 5.876146 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_3_66
+2020-07-05 08:52:24.519275 | Epoch 100 | Train Loss: 2.960797 | Test Loss: 6.014995 | Lr: 10e-3
+2020-07-05 08:58:45.025221 | Epoch 200 | Train Loss: 2.900512 | Test Loss: 5.884239 | Lr: 10e-4
+2020-07-05 09:05:04.484739 | Epoch 300 | Train Loss: 2.896853 | Test Loss: 5.883966 | Lr: 10e-8
+2020-07-05 09:11:23.261929 | Epoch 400 | Train Loss: 2.896852 | Test Loss: 5.883969 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_3_82
+2020-07-05 09:17:48.800899 | Epoch 100 | Train Loss: 2.878673 | Test Loss: 5.853820 | Lr: 10e-4
+2020-07-05 09:24:14.948157 | Epoch 200 | Train Loss: 2.871611 | Test Loss: 5.855230 | Lr: 10e-4
+2020-07-05 09:30:40.396141 | Epoch 300 | Train Loss: 2.864197 | Test Loss: 5.848324 | Lr: 10e-8
+2020-07-05 09:37:04.765356 | Epoch 400 | Train Loss: 2.864196 | Test Loss: 5.848317 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_4_18
+2020-07-05 09:43:02.596242 | Epoch 100 | Train Loss: 3.148085 | Test Loss: 6.327936 | Lr: 10e-3
+2020-07-05 09:49:01.679145 | Epoch 200 | Train Loss: 3.057927 | Test Loss: 6.164005 | Lr: 10e-3
+2020-07-05 09:55:00.972779 | Epoch 300 | Train Loss: 3.038054 | Test Loss: 6.126766 | Lr: 10e-8
+2020-07-05 10:00:59.815174 | Epoch 400 | Train Loss: 3.038053 | Test Loss: 6.126764 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_4_34
+2020-07-05 10:07:03.589063 | Epoch 100 | Train Loss: 3.067795 | Test Loss: 6.209029 | Lr: 10e-3
+2020-07-05 10:13:09.079938 | Epoch 200 | Train Loss: 2.975244 | Test Loss: 5.991739 | Lr: 10e-3
+2020-07-05 10:19:13.221774 | Epoch 300 | Train Loss: 2.944841 | Test Loss: 5.947609 | Lr: 10e-5
+2020-07-05 10:25:17.720886 | Epoch 400 | Train Loss: 2.944501 | Test Loss: 5.947596 | Lr: 10e-8
+2020-07-05 10:31:22.012066 | Epoch 500 | Train Loss: 2.944501 | Test Loss: 5.947595 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_4_50
+2020-07-05 10:37:29.804829 | Epoch 100 | Train Loss: 2.973642 | Test Loss: 5.983848 | Lr: 10e-3
+2020-07-05 10:43:38.923729 | Epoch 200 | Train Loss: 2.921678 | Test Loss: 5.905788 | Lr: 10e-3
+2020-07-05 10:49:48.487387 | Epoch 300 | Train Loss: 2.888559 | Test Loss: 5.876953 | Lr: 10e-6
+2020-07-05 10:55:57.631982 | Epoch 400 | Train Loss: 2.888522 | Test Loss: 5.876963 | Lr: 10e-8
+2020-07-05 11:02:06.304171 | Epoch 500 | Train Loss: 2.888522 | Test Loss: 5.876964 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_4_66
+2020-07-05 11:08:22.290980 | Epoch 100 | Train Loss: 2.931162 | Test Loss: 5.935364 | Lr: 10e-3
+2020-07-05 11:14:39.428605 | Epoch 200 | Train Loss: 2.876390 | Test Loss: 5.857970 | Lr: 10e-4
+2020-07-05 11:20:56.672797 | Epoch 300 | Train Loss: 2.873168 | Test Loss: 5.856202 | Lr: 10e-8
+2020-07-05 11:27:13.839760 | Epoch 400 | Train Loss: 2.873167 | Test Loss: 5.856201 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_4_82
+2020-07-05 11:33:37.306636 | Epoch 100 | Train Loss: 2.922551 | Test Loss: 5.918505 | Lr: 10e-3
+2020-07-05 11:40:01.234087 | Epoch 200 | Train Loss: 2.874228 | Test Loss: 5.871085 | Lr: 10e-6
+2020-07-05 11:46:24.275365 | Epoch 300 | Train Loss: 2.874169 | Test Loss: 5.871107 | Lr: 10e-8
+2020-07-05 11:52:47.716001 | Epoch 400 | Train Loss: 2.874168 | Test Loss: 5.871109 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_5_18
+2020-07-05 11:58:44.647666 | Epoch 100 | Train Loss: 3.177794 | Test Loss: 6.380839 | Lr: 10e-3
+2020-07-05 12:04:40.934284 | Epoch 200 | Train Loss: 3.152888 | Test Loss: 6.352239 | Lr: 10e-7
+2020-07-05 12:10:38.901754 | Epoch 300 | Train Loss: 3.152886 | Test Loss: 6.352237 | Lr: 10e-8
+2020-07-05 12:16:36.407126 | Epoch 400 | Train Loss: 3.152886 | Test Loss: 6.352236 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_5_34
+2020-07-05 12:22:37.901128 | Epoch 100 | Train Loss: 3.009808 | Test Loss: 6.046331 | Lr: 10e-3
+2020-07-05 12:28:40.395416 | Epoch 200 | Train Loss: 2.975030 | Test Loss: 5.995697 | Lr: 10e-6
+2020-07-05 12:34:42.450596 | Epoch 300 | Train Loss: 2.974989 | Test Loss: 5.995728 | Lr: 10e-8
+2020-07-05 12:40:45.370684 | Epoch 400 | Train Loss: 2.974988 | Test Loss: 5.995727 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_5_50
+2020-07-05 12:46:53.091062 | Epoch 100 | Train Loss: 3.031575 | Test Loss: 6.121129 | Lr: 10e-3
+2020-07-05 12:53:02.741863 | Epoch 200 | Train Loss: 2.967926 | Test Loss: 5.990616 | Lr: 10e-3
+2020-07-05 12:59:12.142859 | Epoch 300 | Train Loss: 2.935039 | Test Loss: 5.938731 | Lr: 10e-3
+2020-07-05 13:05:21.936200 | Epoch 400 | Train Loss: 2.903959 | Test Loss: 5.896139 | Lr: 10e-4
+2020-07-05 13:11:30.806998 | Epoch 500 | Train Loss: 2.901405 | Test Loss: 5.894857 | Lr: 10e-8
+2020-07-05 13:17:39.705768 | Epoch 600 | Train Loss: 2.901405 | Test Loss: 5.894856 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_5_66
+2020-07-05 13:23:55.892447 | Epoch 100 | Train Loss: 2.940980 | Test Loss: 5.917329 | Lr: 10e-3
+2020-07-05 13:30:11.810834 | Epoch 200 | Train Loss: 2.909518 | Test Loss: 5.890420 | Lr: 10e-3
+2020-07-05 13:36:27.631666 | Epoch 300 | Train Loss: 2.880988 | Test Loss: 5.867602 | Lr: 10e-8
+2020-07-05 13:42:43.799106 | Epoch 400 | Train Loss: 2.880988 | Test Loss: 5.867597 | Lr: 10e-8
+Reach Low Learning Rate !
+
+Training Coord_StepLinear_E2_3MSE_5_82
+2020-07-05 13:49:08.991071 | Epoch 100 | Train Loss: 2.900039 | Test Loss: 5.897157 | Lr: 10e-3
+2020-07-05 13:55:33.769915 | Epoch 200 | Train Loss: 2.854115 | Test Loss: 5.841490 | Lr: 10e-4
+2020-07-05 17:06:12.365605 | Epoch 300 | Train Loss: 2.850104 | Test Loss: 5.842313 | Lr: 10e-8
+2020-07-05 17:12:39.257897 | Epoch 400 | Train Loss: 2.850104 | Test Loss: 5.842320 | Lr: 10e-8
+Reach Low Learning Rate !
+

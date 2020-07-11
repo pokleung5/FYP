@@ -10,13 +10,12 @@ from importlib import reload
 # %%
 from preprocess import *
 from trainUtils import *
-from lossFunction import CoordsToDMLoss, ReconLoss, MultiLoss, sammon_loss
+from lossFunction import CustomLoss, CoordsToDMLoss, ReconLoss, MultiLoss, sammon_loss
 
 from torch.utils.data import DataLoader
 
-from model.Linear import Linear
-from model.EignModel import EignModel
-
+from model.Linear import Linear, ReuseLinear, StepLinear
+# from model.EignModel import EignModel
 import model.AutoEncoder as ae
 import model.RNN as rnn
 
@@ -31,24 +30,28 @@ dlr = DataLoader(data, batch_size=batch, shuffle=True)
 
 init_lr = 1e-3
 
-train_id = '_'.join(['Coord', 'Linear', 'D', 'L1'])
+train_id = '_'.join(['General', 'AE', 'PerDist', 'MSE'])
 
-coordLoss = CoordsToDMLoss(N, 2, lossFun=nn.L1Loss(reduction='sum'))
-reconLoss = ReconLoss(lossFun=nn.MSELoss(reduction='sum'))
+coordLoss = CoordsToDMLoss(N, lossFun=nn.MSELoss(reduction='mean'))
+reconLoss = ReconLoss(lossFun=nn.MSELoss(reduction='mean'))
+mseLoss = CustomLoss(lossFun=nn.MSELoss(reduction='mean'))
 
-lossFun = MultiLoss(lossFunList=[coordLoss])
+lossFun = MultiLoss(lossFunList=[mseLoss])
 
-preprocess = preprocess_d
+preprocess = PrepPerDist(N)
 
-def get_model(neuron, i):
-    
-    mid1 = int((neuron + in_dim) / 2)
-    mid2 = int((neuron + out_dim) / 2)
+in_dim = preprocess.get_inShape()
+out_dim = int(N / 2)
 
-    mid = [neuron] * (i - 2)
+def get_model(nNeuron, nLayer, in_dim, out_dim):
 
-    return Linear(
-        dim=[in_dim, mid1, *mid, mid2, out_dim],
+    mid1 = int((nNeuron + in_dim) / 2)
+    mid2 = int((nNeuron + out_dim) / 2)
+
+    mid = [nNeuron + in_dim] * (nLayer - 2)
+
+    return ae.AutoEncoder(
+        encode_dim=[in_dim, mid1, *mid, mid2, out_dim],
         activation=nn.LeakyReLU)
 
 # %%
@@ -61,15 +64,13 @@ copyfile('train.py', bkup_dest)
 
 #%%
 
-in_dim, out_dim = n_dist, N * 2
-
-param = [(N + in_dim, L) for N in range(8, 73, 16) for L in range(2, 6)]
+param = [(N, L)  for L in range(4, 5) for N in range(72, 73, 16)]
 
 for neuron, i in param:
 
     model_id = train_id + "_" + str(i) + "_" + str(neuron)
 
-    model = get_model(neuron, i)
+    model = get_model(neuron, i, in_dim, out_dim)
 
     helper = trainHelper.TrainHelper(
         id=model_id, model=model, lossFun=lossFun,

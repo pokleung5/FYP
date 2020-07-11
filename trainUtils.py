@@ -22,7 +22,7 @@ def test(helper, test_data):
     rs, target = helper._predict(test_data)
     loss = helper.lossFun(rs, target)
 
-    return loss / test_data.size()[0]
+    return loss
 
 def train(helper, dlr, logFilePath):
 
@@ -35,7 +35,7 @@ def train(helper, dlr, logFilePath):
     
     test_loss_records = []
 
-    for i in range(10):
+    for i in range(50):
 
         helper.train(dlr, EPOCH)
         helper.backup()

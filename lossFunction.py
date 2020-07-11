@@ -25,7 +25,24 @@ def sammon_loss(result, target):
     b = torch.sum(target, 2)
     c = torch.div(a, b)
 
-    return torch.sum(c)
+    return torch.mean(c)
+
+
+def relative_loss(result, target):
+      
+    r = result.view_as(target)
+    
+    if result.size()[-1] == result.size()[-2]:
+        result = utils.vectorize_distance_from_DM(result)
+
+    if target.size()[-1] == target.size()[-2]:
+        target = utils.vectorize_distance_from_DM(target)
+    
+
+    loss = torch.div(result - target, target)
+    loss = torch.pow(loss, 2)
+
+    return torch.mean(loss)
 
 
 class CustomLoss(nn.Module):

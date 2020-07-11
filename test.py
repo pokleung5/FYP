@@ -1,4 +1,4 @@
-#%%
+# %%
 import trainHelper
 import utils
 import dataSource
@@ -57,74 +57,66 @@ class Test:
             self.N, n_arg, self.test_size, isInt=True, sample_space=(1000, 1), dist_func=dist_func)
         self.test_data = utils.minmax_norm(self.test_data, dmin=0)[0]
 
-    def test(self, helper, test_data=None):
+    def test(self, method, data): 
+            
+        rs, time = [], []
 
-        if test_data is None:
-            test_data = self.test_data
+        for a in data.detach().numpy():
+            
+            b, t = utils.time_measure(method, [a])
 
-        rs, target = helper._predict(test_data)
-        rs = rs[0] if type(rs) is tuple or type(rs) is list else rs
-        
-        if rs.size()[-1] == self.n_d:  # special handle for recon
+            rs.append(torch.tensor(b))
+            time.append(t)
 
-            rs = utils.unvectorize_distance(rs)
+        rs = torch.stack(rs).view(-1, self.N, self.d)
+        loss = float(self.lossFun(rs, self.test_data))
+        time = sum(time)
 
-            rs = torch.stack([
-                torch.tensor(
-                    classicalMDS(dm)
-                ) for dm in rs.detach().numpy()
-            ])
+        return loss, time
 
-        loss = self.lossFun(rs, target)
-
-        return loss
 
     def classicSolution(self):
 
-        cmds_rs, fastmap_rs, nmds_rs, lmds_rs = [], [], [], []
+        method_itr = {
+            'classicalMDS': self.etm.classicalMDS,
+            'nonMetricMDS': self.etm.nonMetricMDS,
+            'landmarkMDS': self.etm.landmarkMDS,
+            'isomap': self.etm.isomap,
+            'fastmap': self.etm.fastmap,
+            # 't-SNE': self.etm.tsne
+        }
 
-        for d in self.test_data:
+        record = []
 
-            d1 = numpy.array(d[0].data)
+        data = self.test_data.view(-1, self.N, self.N)
 
-            cmds_rs.append(torch.tensor(self.etm.classicalMDS(d1)))
-            lmds_rs.append(torch.tensor(self.etm.landmarkMDS(d1)))
-            nmds_rs.append(torch.tensor(self.etm.nonMetricMDS(d1)))
-            fastmap_rs.append(torch.tensor(self.etm.fastmap(d1)))
+        for name, method in method_itr.items():
+            loss, time = self.test(method, data)
+            record.append([name, loss, time])
 
-        cmds_rs = torch.stack(cmds_rs)
-        lmds_rs = torch.stack(lmds_rs)
-        nmds_rs = torch.stack(nmds_rs)
-        fastmap_rs = torch.stack(fastmap_rs)
+        return pandas.DataFrame(record, columns=['Method', 'Loss', 'Time'])
 
-        return pandas.DataFrame([[
-            self.lossFun(cmds_rs, self.test_data),
-            self.lossFun(lmds_rs, self.test_data),
-            self.lossFun(nmds_rs, self.test_data),
-            self.lossFun(fastmap_rs, self.test_data)]],
-            columns=['cmds_loss', 'lmds_loss', 'nmds_loss', 'fastmap_loss'])
-
-    def tabulate(self, paths, N):
+    def tabulate(self, paths):
 
         linear_result_score = []
 
+        data = self.test_data.view(-1, 1, self.N, self.N)
+
         for filepath in paths:
 
-            t = filepath.split('\\')[-1].split('.')[0].split('_')
-            h: trainHelper.TrainHelper=utils.load_variable(filepath)
-            # h=trainHelper.TrainHelper(h)
-            # h.preprocess = PrepMatrix(self.N)
-            # utils.dump_variable(h, filepath)
-            h.preprocess.add_noise=False
-            linear_result_score.append([*t, float(self.test(h))])
-        
-        linear_result_score = sorted(linear_result_score, key=lambda x: x[-1])
+            self.etm.use_pretrained_model(filepath)
+            loss, time = self.test(self.etm.deepMDS, data)
+
+            info = filepath.split('\\')[-1].split('.')[0].split('_')
+            linear_result_score.append([*info, loss, time])
+
+        linear_result_score = sorted(linear_result_score, key=lambda x: x[-2])
         # return linear_result_score
 
         return pandas.DataFrame(linear_result_score, columns=[
-            'Method', 'Model', 'Input', 'LossFun', 'Layer', 'Neuron', 'Epoch', 'Loss'
+            'Method', 'Model', 'Input', 'LossFun', 'Layer', 'Neuron', 'Epoch', 'Loss', 'Time'
         ])
-
+#%%
 
 if __name__ == "__main__":
 
@@ -132,12 +124,18 @@ if __name__ == "__main__":
 
     # test.reload_custom(lambda a, b, _: torch.sum(torch.abs(a - b)**2)**0.5, n_arg=2)
 
-    mds_rs = test.classicSolution()
-    print(mds_rs)
+    print(test.classicSolution())
     print('==========================================')
 
-    records = test.tabulate(set(glob.glob('result/Expand_*_*.model')), -1)
-    print(records[records['Epoch'] != 'Overfit'])
+    records = test.tabulate(
+        set(glob.glob('result/Coord*.model'))
+        - set(glob.glob('result/*Overfit*.model'))
+        - set(glob.glob('result/*(M)*.model'))
+        )
+
+    r1 = records[records['Epoch'] != 'Overfit']
+
+    print(r1.iloc[r1.groupby(['Model', 'Input', 'LossFun'])['Loss'].idxmin()].sort_values(['Loss']))
     # print('==========================================')
 
     # records.to_csv('rank.csv')

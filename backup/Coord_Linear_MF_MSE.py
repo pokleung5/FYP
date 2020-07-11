@@ -10,13 +10,12 @@ from importlib import reload
 # %%
 from preprocess import *
 from trainUtils import *
-from lossFunction import CoordsToDMLoss, ReconLoss, MultiLoss, sammon_loss
+from lossFunction import CustomLoss, CoordsToDMLoss, ReconLoss, MultiLoss, sammon_loss
 
 from torch.utils.data import DataLoader
 
 from model.Linear import Linear, ReuseLinear, StepLinear
-from model.EignModel import EignModel
-
+# from model.EignModel import EignModel
 import model.AutoEncoder as ae
 import model.RNN as rnn
 
@@ -31,38 +30,30 @@ dlr = DataLoader(data, batch_size=batch, shuffle=True)
 
 init_lr = 1e-3
 
-train_id = '_'.join(['Coord', 'StepLinear', 'E', '3MSE'])
+train_id = '_'.join(['Coord', 'Linear', 'MF', 'MSE'])
 
-coordLoss = CoordsToDMLoss(N, lossFun=nn.MSELoss(reduction='sum'))
-reconLoss = ReconLoss(lossFun=nn.MSELoss(reduction='sum'))
+coordLoss = CoordsToDMLoss(N, lossFun=nn.MSELoss(reduction='mean'))
+reconLoss = ReconLoss(lossFun=nn.MSELoss(reduction='mean'))
+mseLoss = CustomLoss(lossFun=nn.MSELoss(reduction='mean'))
 
-lossFun = MultiLoss(lossFunList=[coordLoss, coordLoss, coordLoss])
+lossFun = MultiLoss(lossFunList=[coordLoss])
 
-preprocess = PrepEign(N)
+preprocess = PrepMatrix(N, flatten=True)
+
+in_dim = preprocess.get_inShape()
+out_dim = N * 2
 
 def get_model(neuron, i, in_dim, out_dim):
 
-    step = [in_dim, int(in_dim/2), int(in_dim/4), out_dim]
+    n = int(neuron)
 
-    dim_list = []
+    mid1 = int((n + in_dim) / 2)
+    mid2 = int((n + out_dim) / 2)
 
-    for i in range(1, len(step)):
+    mid = [int(n)] * (i - 2)
 
-        in_dim = step[i - 1]
-        out_dim = step[i]
-
-        n = int(neuron / i)
-
-        mid1 = int((n + in_dim) / 2)
-        mid2 = int((n + out_dim) / 2)
-
-        mid = [int(n)] * (i - 2)
-
-        dim_list.append([in_dim, mid1, *mid, mid2, out_dim])
-
-
-    return StepLinear(
-        dim_list=dim_list,
+    return Linear(
+        dim=[in_dim, mid1, *mid, mid2, out_dim],
         activation=nn.LeakyReLU)
 
 # %%
@@ -75,9 +66,7 @@ copyfile('train.py', bkup_dest)
 
 #%%
 
-in_dim, out_dim = preprocess.shape(), 2
-
-param = [(N + in_dim, L)  for L in range(2, 6) for N in range(8, 73, 16)]
+param = [(N, L)  for L in range(2, 6) for N in range(8, 73, 16)]
 
 for neuron, i in param:
 

@@ -7,6 +7,7 @@ from torch.nn import functional as F
 from . import Linear
 
 class AutoEncoder(nn.Module):
+    
     def __init__(self, encode_dim: list, decode_dim=None,
                  activation=nn.ReLU, final_activation=None):
                  
@@ -40,9 +41,11 @@ class AutoEncoder(nn.Module):
     def forward(self, x):
 
         e = self.encode(x)
-        d = self.decode(e)
+        
+        e2 = F.leaky_relu(e)
+        d = self.decode(e2)
 
         if self.final_act is not None:
             d = self.final_act(d)
 
-        return e, d
+        return d, e

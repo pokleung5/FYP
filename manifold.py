@@ -6,9 +6,12 @@ from sklearn.metrics import euclidean_distances
 
 import mds.lmds as lmds
 import mds.fastmap as fmp
+import mds.cmds as cmds
 
-import numpy, torch
+import numpy, torch, pandas 
 import utils
+
+from lossFunction import CoordsToDMLoss
 
 class Algorithm:
 
@@ -17,37 +20,61 @@ class Algorithm:
         self.N = N
         self.d = d
         
-        self.cmds = manifold.MDS(n_components=d, eps=1e-12,
+        self.__cmds = manifold.MDS(n_components=d, eps=1e-12,
                    dissimilarity="precomputed", n_jobs=1)
 
-        self.nmds = manifold.MDS(n_components=d, metric=False, eps=1e-12,
+        self.__nmds = manifold.MDS(n_components=d, metric=False, eps=1e-12,
                     max_iter=3000, 
                     dissimilarity="precomputed", n_jobs=1, n_init=1)
 
-        self.pca = PCA(n_components=d)
+        self.__isomap = manifold.Isomap(n_components=d,
+                    max_iter=3000, 
+                    metric='precomputed')
 
-    def __norm(self, x):
+        self.__TSNE = manifold.TSNE(n_components=d,
+                    metric='precomputed')
+
+        self.__pca = PCA(n_components=d)
+
+    def norm(self, x):
 
         # x = x / numpy.sqrt((x ** 2).sum())
-        rs = self.pca.fit_transform(x)
+        rs = self.__pca.fit_transform(x)
+
+        rs = rs - numpy.min(rs)
+        rs = rs / numpy.max(rs)
+
         return rs
 
     def classicalMDS(self, x):
 
-        rs = self.cmds.fit_transform(x)
-        rs = self.__norm(rs)
+        rs = self.__cmds.fit_transform(x)
+        # rs = cmds.classicalMDS(x)
+        rs = self.norm(rs)
         return rs
 
     def nonMetricMDS(self, x):
 
-        rs = self.nmds.fit_transform(x)
-        rs = self.__norm(rs)
+        rs = self.__nmds.fit_transform(x)
+        rs = self.norm(rs)
         return rs
 
     def fastmap(self, x):
 
         rs = fmp.fastmap(x, self.d)
-        rs = self.__norm(rs)
+        rs = self.norm(rs)
+        return rs
+
+    def isomap(self, x):
+
+        rs = self.__isomap.fit_transform(x)
+        rs = self.norm(rs)
+        return rs
+
+    def tsne(self, x):
+
+        rs = self.__TSNE.fit_transform(x)
+        rs = self.norm(rs)
         return rs
 
     def landmarkMDS(self, x):
@@ -60,62 +87,89 @@ class Algorithm:
             L = L + 1
             rs = lmds.landmarkMDS(x, L=L, D=self.d)
 
-        rs = self.__norm(rs)
+        rs = self.norm(rs)
         return rs
 
     def use_pretrained_model(self, filename):
         
-        self.deep_model = utils.load_variable(filename)._predict
+        h = utils.load_variable(filename)
+        h.preprocess.add_noise=False
+        self.__deep_model = h._predict
 
     def deepMDS(self, x):
 
-        x = torch.tensor(x).view(1, self.N, self.N)
+        if x is not torch.Tensor:
+            x = torch.tensor(x)
+        
+        x = x.view(1, self.N, self.N)
 
-        rs, target = self.deep_model(x)
+        rs, target = self.__deep_model(x)
         rs = rs[-1] if type(rs) is not torch.Tensor else rs
 
         rs = rs.view(self.N, self.d).detach().numpy()
-        rs = self.__norm(rs)
+        rs = self.norm(rs)
         return rs
 
 #%%
 if __name__ == "__main__":
     
     import dataSource
+    from sklearn import datasets
 
-    cus = dataSource.custom_distance(10, 2, 1, isInt=True,
+    N, d = 10, 2
+    batch = 500
+
+    test_data = dataSource.custom_distance(N, d, batch, isInt=True,
             sample_space=(1000, 1),
             dist_func=lambda a, b, _: torch.sum(torch.abs(a - b)** 2)** 0.5)
-    cus = utils.minmax_norm(cus, dmin=0)[0]
     
-    skl = Algorithm(10, 2)
-    a = numpy.array(cus)[0, 0]
-    b1 = skl.classicalMDS(a)
-    b2 = skl.nonMetricMDS(a)
-    b3 = skl.landmarkMDS(a)
-    
-    # print(b1, b2, sep='\n')
-    skl.use_pretrained_model('result\Coord_StepLinear_E2_3MSE_5_82_400.model')
+    test_data = dataSource.generate_rand_DM(N, batch, isInt=True,
+            sample_space=(1000, 1))
 
-    b4 = skl.deepMDS(a)
-    
-    c1 = utils.get_distanceSq_matrix(torch.tensor(b1))** 0.5
-    c1 = utils.minmax_norm(c1, dmin=0)[0]
-    c1 = c1.detach().numpy()
+    # digits = datasets.load_digits(n_class=6).data
+    # digits = torch.tensor(digits)
+    # test_data = utils.get_distanceSq_matrix(digits) ** 0.5
 
-    c2 = utils.get_distanceSq_matrix(torch.tensor(b2))** 0.5
-    c2 = utils.minmax_norm(c2, dmin=0)[0]
-    c2 = c2.detach().numpy()
+    test_data = utils.minmax_norm(test_data, dmin=0)[0]
 
-    c3 = utils.get_distanceSq_matrix(torch.tensor(b3))** 0.5
-    c3 = utils.minmax_norm(c3, dmin=0)[0]
-    c3 = c3.detach().numpy()
+    N = test_data.size()[-1]
 
-    c4 = utils.get_distanceSq_matrix(torch.tensor(b4))** 0.5
-    c4 = utils.minmax_norm(c4, dmin=0)[0]
-    c4 = c4.detach().numpy()
+    skl = Algorithm(N, d)
 
-    print("cmds:", numpy.max(b1), numpy.mean(numpy.abs(a - c1)))
-    print("nmds:", numpy.max(b2), numpy.mean(numpy.abs(a - c2)))
-    print("lmds:", numpy.max(b3), numpy.mean(numpy.abs(a - c3)))
-    print("deep:", numpy.max(b4), numpy.mean(numpy.abs(a - c4)))
+    method_itr = {
+        'classicalMDS': skl.classicalMDS,
+        # 'nonMetricMDS': skl.nonMetricMDS,
+        'landmarkMDS': skl.landmarkMDS,
+        # 'isomap': skl.isomap,
+        # 'fastmap': skl.fastmap,
+        # 't-SNE': skl.tsne,
+        'Deep MDS': skl.deepMDS
+    }
+
+    skl.use_pretrained_model('backup/Coord_Linear_AEModel_MSE_2_8_200.model')
+    lossFun = CoordsToDMLoss(
+            N=N, lossFun=torch.nn.MSELoss(reduction='mean'))
+
+    record = []
+
+    for name, method in method_itr.items():
+
+        rs, time = [], []
+
+        for a in test_data:
+
+            a = a.view(N, N).detach().numpy()
+            b1, t = utils.time_measure(method, [a])
+
+            rs.append(torch.tensor(b1))
+            time.append(t)
+
+        rs = torch.stack(rs)
+
+        loss = float(lossFun(rs, test_data))
+        time = sum(time) / len(time)
+
+        record.append([name, loss, time])
+        
+    tabulate = pandas.DataFrame(record, columns=['Method', 'Loss', 'Time'])
+    print(tabulate.sort_values(['Loss']))

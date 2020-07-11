@@ -7,6 +7,30 @@ from torch.nn import functional as F
 
 from . import Linear
 
+class LRNN(nn.Module):
+
+    def __init__(self, dim: list, num_rnn_layers=1, activation=nn.LeakyReLU):
+
+        super(LRNN, self).__init__()
+
+        self.N = dim[0]
+
+        self.lstm = nn.LSTM(
+            input_size=dim[0],
+            hidden_size=dim[1],
+            num_layers=num_rnn_layers,
+            batch_first=True
+        )
+
+        self.out = Linear.get_Linear_Sequential(dim[1:], activation)
+
+    def forward(self, x):
+
+        x = x.view(-1, self.N, self.N)
+        y1, (hn, cn) = self.lstm(x)
+        y2 = self.out(y1)
+
+        return y1, y2
 
 class aRNN(nn.Module):
 

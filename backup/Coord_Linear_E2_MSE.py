@@ -31,31 +31,31 @@ dlr = DataLoader(data, batch_size=batch, shuffle=True)
 
 init_lr = 1e-3
 
-train_id = '_'.join(['Expand', 'Linear', 'MF', 'MSE'])
+train_id = '_'.join(['Coord', 'Linear', 'E2', 'MSE'])
 
-coordLoss = CoordsToDMLoss(N, lossFun=nn.MSELoss(reduction='sum'))
-reconLoss = ReconLoss(lossFun=nn.MSELoss(reduction='sum'))
-mseLoss = CustomLoss(lossFun=nn.MSELoss(reduction='sum'))
+coordLoss = CoordsToDMLoss(N, lossFun=nn.MSELoss(reduction='mean'))
+reconLoss = ReconLoss(lossFun=nn.MSELoss(reduction='mean'))
+mseLoss = CustomLoss(lossFun=nn.MSELoss(reduction='mean'))
 
-lossFun = MultiLoss(lossFunList=[coordLoss, coordLoss])
+lossFun = MultiLoss(lossFunList=[coordLoss])
 
-preprocess = PrepMatrix(N, flatten=True)
-in_dim, out_dim = preprocess.get_inShape(), N * 2
+preprocess = PrepEign(N)
+
+in_dim = preprocess.get_inShape()
+out_dim = 2
 
 def get_model(neuron, i, in_dim, out_dim):
 
-    n = int(neuron / i)
+    n = int(neuron)
 
     mid1 = int((n + in_dim) / 2)
     mid2 = int((n + out_dim) / 2)
 
-    mid = [int(n)] * (i - 2)
+    mid = [int(n + in_dim)] * (i - 2)
 
-    return StepLinear(
-        dim_list=[
-            [in_dim, mid1, *mid, mid2, in_dim],
-            [in_dim, mid1, *mid, mid2, out_dim]
-        ], activation=nn.LeakyReLU)
+    return Linear(
+        dim=[in_dim, mid1, *mid, mid2, out_dim],
+        activation=nn.LeakyReLU)
 
 # %%
 bkup_dest = 'backup/%s.py' % (train_id)
@@ -67,7 +67,7 @@ copyfile('train.py', bkup_dest)
 
 #%%
 
-param = [(N + in_dim, L)  for L in range(2, 6) for N in range(8, 73, 16)]
+param = [(N, L)  for L in range(5, 6) for N in range(8, 73, 16)]
 
 for neuron, i in param:
 

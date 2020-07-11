@@ -10,12 +10,12 @@ from importlib import reload
 # %%
 from preprocess import *
 from trainUtils import *
-from lossFunction import CustomLoss, CoordsToDMLoss, ReconLoss, MultiLoss, sammon_loss
+from lossFunction import CustomLoss, CoordsToDMLoss, ReconLoss, MultiLoss
+import lossFunction as lossF
 
 from torch.utils.data import DataLoader
 
 from model.Linear import Linear, ReuseLinear, StepLinear
-from model.EignModel import EignModel
 
 import model.AutoEncoder as ae
 import model.RNN as rnn
@@ -31,25 +31,26 @@ dlr = DataLoader(data, batch_size=batch, shuffle=True)
 
 init_lr = 1e-3
 
-train_id = '_'.join(['Expand', 'Linear', 'D', 'MSE'])
+train_id = '_'.join(['Coord', 'Linear', 'M', 'RLL'])
 
-coordLoss = CoordsToDMLoss(N, lossFun=nn.MSELoss(reduction='sum'))
-reconLoss = ReconLoss(lossFun=nn.MSELoss(reduction='sum'))
-mseLoss = CustomLoss(lossFun=nn.MSELoss(reduction='sum'))
+coordLoss = CoordsToDMLoss(N, lossFun=lossF.relative_loss)
+reconLoss = ReconLoss(lossFun=nn.MSELoss(reduction='mean'))
+mseLoss = CustomLoss(lossFun=nn.MSELoss(reduction='mean'))
 
 lossFun = MultiLoss(lossFunList=[coordLoss])
 
-preprocess = PrepDist(N)
-in_dim, out_dim = preprocess.get_inShape(), N * N
+preprocess = PrepMatrix(N)
 
-def get_model(neuron, i, in_dim, out_dim):
+in_dim = preprocess.get_inShape()
+out_dim = 2
 
-    n = int(neuron / i)
+def get_model(nNeuron, nLayer, in_dim, out_dim):
 
-    mid1 = int((n + in_dim) / 2)
-    mid2 = int((n + out_dim) / 2)
+    nNeuron = nNeuron= in_dim
+    mid1 = int((nNeuron + in_dim) / 2)
+    mid2 = int((nNeuron + out_dim) / 2)
 
-    mid = [int(n)] * (i - 2)
+    mid = [nNeuron] * (nLayer - 2)
 
     return Linear(
         dim=[in_dim, mid1, *mid, mid2, out_dim],
@@ -65,7 +66,7 @@ copyfile('train.py', bkup_dest)
 
 #%%
 
-param = [(N + in_dim, L)  for L in range(2, 6) for N in range(8, 73, 16)]
+param = [(N, L)  for L in range(2, 5) for N in range(8, 73, 16)]
 
 for neuron, i in param:
 

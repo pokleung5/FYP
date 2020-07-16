@@ -145,14 +145,20 @@ class Algorithm:
 
         in_dim = preprocess.get_inShape()
         out_dim = preprocess.get_outShape(self.d)
-        
-        if modelKey != 'AE' and prepKey == 'MF':
-            out_dim = int(self.N * (self.N - 1) / 2)
 
         nNeuron = nNeuron + in_dim
-        dim = [in_dim, int((in_dim + nNeuron) / 2), *([nNeuron] * (nLayer - 2)), int((in_dim + nNeuron) / 2), out_dim]
         
+        dim = [in_dim, int((in_dim + nNeuron) / 2), *([nNeuron] * (nLayer - 2)), int((in_dim + nNeuron) / 2), out_dim]
         model = modelMap[modelKey](dim = dim, activation = nn.LeakyReLU)
+        
+        if modelKey == 'AE' and prepKey == 'MF':
+
+            recon_dim = int(self.N * (self.N - 1) / 2)
+            model = modelMap[modelKey](dim = dim, decode_dim = [
+                out_dim, int((out_dim + nNeuron) / 2), *([nNeuron]*(nLayer - 2)), int((recon_dim + nNeuron) / 2), recon_dim
+                ])
+
+
         model_id = '_'.join([modelKey, prepKey, lossFunKey, str(nLayer), str(nNeuron)])
 
         newTrainer = trainHelper.TrainHelper(id=model_id, model=model, lossFun=lossFun,
@@ -194,7 +200,7 @@ if __name__ == "__main__":
 
     alg = Algorithm(N, d)
 
-    alg.make_new_model(x=test_data, modelKey='Linear', lossFunKey='SML', prepKey='MF',
+    alg.make_new_model(modelKey='Linear', lossFunKey='SML', prepKey='MF',
      nNeuron=72, nLayer=3)
 
     tester = test.Test(10, 2, 500)

@@ -96,10 +96,10 @@ class TrainHelper:
 
     def predict(self, data):
 
-        if self.epoch == 0:
-            self.quick_fit(data)
-
         target = data
+
+        if self.epoch == 0:
+            return self.quick_fit(data), target
 
         if self.preprocess is not None:
             data, target = self.preprocess(data)
@@ -132,12 +132,29 @@ class TrainHelper:
             
         self.epoch = 0
 
+        best_rs = None
+        min_loss = 9999
+
         while self.epoch < self.fit_minEpoch or (
             self.optim.param_groups[0]['lr'] > self.fit_minlr and self.epoch < self.fit_maxEpoch):
 
             self.epoch = self.epoch + 1
-            self.__train(x)
-            
+
+            self.optim.zero_grad()
+
+            rs, target = self.__predict(x)
+
+            loss = self.lossFun(rs, target.data)
+
+            if min_loss > loss:
+
+                min_loss = loss
+                best_rs = rs
+
+            loss.backward()
+            self.optim.step()
+
+        return best_rs 
 
     def train(self, dlr: DataLoader, EPOCH: int):
         

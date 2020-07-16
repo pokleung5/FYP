@@ -103,6 +103,8 @@ class Test:
         data = self.test_data.view(-1, 1, self.N, self.N)
 
         for filepath in paths:
+            
+            print(filepath)
 
             self.etm.use_pretrained_model(filepath)
             loss, time = self.test(self.etm.deepMDS, data)
@@ -126,7 +128,7 @@ if __name__ == "__main__":
 
     # exit(0)
 
-    # tester = Test(10, 2, 500)
+    test = Test(10, 2, 1)
 
     # test.reload_custom(lambda a, b, _: torch.sum(torch.abs(a - b)**2)**0.5, n_arg=2)
 
@@ -138,7 +140,9 @@ if __name__ == "__main__":
     print('==========================================')
 
     records = test.tabulate(
-        set(glob.glob('backup/*.model'))
+        set(glob.glob('backup/Coord_Linear*.model'))
+        - set(glob.glob('backup\Coord_Linear_AEModel_*.model'))
+        | set(glob.glob('backup/Coord_AE*.model'))
         )
 
     r1 = records[records['Epoch'] != 'Overfit']
@@ -146,6 +150,6 @@ if __name__ == "__main__":
     print(r1.iloc[r1.groupby(['Model', 'Input', 'LossFun'])['Loss'].idxmin()].sort_values(['Loss']))
     # print('==========================================')
 
-    records.to_csv('deep_method.csv')
+    # records.to_csv('deep_method.csv')
     
 # %%

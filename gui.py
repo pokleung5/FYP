@@ -217,6 +217,7 @@ class Application:
         if model == 'AE':
             self.menu_prep['menu'].entryconfigure('M', state="disabled")
             self.menu_prep['menu'].entryconfigure('E2', state="disabled")
+            self.opt_prep.set('MF')
         else:
             self.menu_prep['menu'].entryconfigure('M', state= "normal")
             self.menu_prep['menu'].entryconfigure('E2', state="normal")
@@ -238,6 +239,8 @@ class Application:
 
         self.menu_prep = OptionMenu(self.window_deepMDS,
                                self.opt_prep, *manifold.prepMap)
+
+        self.__disablePrepForAE(self.opt_model.get())
 
         label_loss = Label(self.window_deepMDS, text="Select a Loss function",
                            justify=LEFT, anchor="w",
@@ -262,15 +265,15 @@ class Application:
                              textvariable=self.neuronValue)
 
         self.entry_minEpoch = Scale(self.window_deepMDS, background="white",
-                                    resolution=10,
-                                    from_=10, to=2000, showvalue=0, variable=self.minEpochValue,
+                                    resolution=1,
+                                    from_=1, to=2000, showvalue=0, variable=self.minEpochValue,
                                     label='Select the number of min epoch:', orient=HORIZONTAL)
         label_minEpoch = Entry(self.window_deepMDS, width=5,
                                textvariable=self.minEpochValue)
 
         self.entry_maxEpoch = Scale(self.window_deepMDS, background="white",
-                                    resolution=10,
-                                    from_=10, to=2000, showvalue=0, variable=self.maxEpochValue,
+                                    resolution=1,
+                                    from_=1, to=2000, showvalue=0, variable=self.maxEpochValue,
                                     label='Select the number of max epoch:', orient=HORIZONTAL)
         label_maxEpoch = Entry(self.window_deepMDS, width=5,
                                textvariable=self.maxEpochValue)

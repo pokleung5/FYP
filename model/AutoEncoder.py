@@ -8,17 +8,17 @@ from . import Linear
 
 class AutoEncoder(nn.Module):
     
-    def __init__(self, encode_dim: list, decode_dim=None,
+    def __init__(self, dim: list, decode_dim=None,
                  activation=nn.ReLU, final_activation=None):
                  
         super(AutoEncoder, self).__init__()
         
         if decode_dim is None:
-            decode_dim = encode_dim.copy()
+            decode_dim = dim.copy()
             decode_dim.reverse()
   
         self.encoder = Linear.get_Linear_Sequential(
-                                dim=encode_dim, activation=activation)
+                                dim=dim, activation=activation)
 
         self.decoder = Linear.get_Linear_Sequential(
                                 dim=decode_dim, activation=activation)

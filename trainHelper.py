@@ -34,13 +34,11 @@ class TrainHelper:
 
         self.preprocess = preprocess
 
-        if lr_factor is None:
-            self.scheduler = None
-        else:
-            self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-                optimizer, 'min', factor=lr_factor, verbose=False)
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, 'min', factor=lr_factor, verbose=False)
 
         self.__init_record()
+        self.config_fit()
 
     # def __init__(self, helper):
 
@@ -74,7 +72,7 @@ class TrainHelper:
 
         self.optim.zero_grad()
 
-        rs, target = self._predict(data)
+        rs, target = self.__predict(data)
 
         loss = self.lossFun(rs, target.data)
 
@@ -86,7 +84,7 @@ class TrainHelper:
 
         return loss
 
-    def _predict(self, data):
+    def __predict(self, data):
 
         target = data
 
@@ -94,6 +92,19 @@ class TrainHelper:
             data, target = self.preprocess(data)
 
         return self.model(data), target
+
+
+    def predict(self, data):
+
+        if self.epoch == 0:
+            self.quick_fit(data)
+
+        target = data
+
+        if self.preprocess is not None:
+            data, target = self.preprocess(data)
+
+        return self.model.encode(data), target
 
     def backup(self):
 
@@ -110,8 +121,26 @@ class TrainHelper:
 
         self.scheduler.step(x)
 
-    def train(self, dlr: DataLoader, EPOCH: int):
+    def config_fit(self, minlr=1e-8, minEpoch=0, maxEpoch=50):
 
+        self.fit_minlr = minlr
+        self.fit_minEpoch = minEpoch
+        self.fit_maxEpoch = maxEpoch 
+        
+
+    def quick_fit(self, x):
+            
+        self.epoch = 0
+
+        while self.epoch < self.fit_minEpoch or (
+            self.optim.param_groups[0]['lr'] > self.fit_minlr and self.epoch < self.fit_maxEpoch):
+
+            self.epoch = self.epoch + 1
+            self.__train(x)
+            
+
+    def train(self, dlr: DataLoader, EPOCH: int):
+        
         if len(self.localRecord) > 0:
             raise Exception("Record in last train not merged !")
 
@@ -127,17 +156,15 @@ class TrainHelper:
                 time_cost.append(t)
 
             self.__add_record_to_local(loss_values, time_cost)
-
-            if self.scheduler is not None:
-                self.step_scheduler(self.localRecord[epoch]['loss_mean'])
+            self.step_scheduler(self.localRecord[epoch]['loss_mean'])
 
         self.merge_local_record()
 
-    def output_state(self):
 
-        print("MODEL")
-        print(self.model.state_dict())
-        print("OPTIM")
-        print(self.optim.state_dict())
+        
+        
+
+
+
 
 # %%

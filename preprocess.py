@@ -41,6 +41,13 @@ class Preprocess:
         
         return self.N
 
+    def get_outShape(self, d):
+
+        if self.flatten:
+            return self.N * d
+        
+        return d
+
 
 class PrepMatrix(Preprocess):
 
@@ -68,20 +75,6 @@ class PrepEign(Preprocess):
         return self.N * 2
 
 
-class PrepPerDist(Preprocess):
-
-    def __init__(self, N, scale=True):
-
-        super(PrepPerDist, self).__init__(N, False, scale, False)
-
-    def __call__(self, x):
-
-        px = x.view(-1, 1, self.N)
-
-        return super(PrepPerDist, self).__call__(px)
-
-
-
 class PrepDist(Preprocess):
 
     def __init__(self, N, add_noise=False, scale=True):
@@ -96,6 +89,10 @@ class PrepDist(Preprocess):
     def get_inShape(self):
 
         return int((self.N * self.N - self.N) / 2)
+
+    def get_outShape(self, d):
+
+        return self.N * d
 
 
 class PrepModel(Preprocess):
@@ -150,4 +147,17 @@ class PrepModel(Preprocess):
 #         ex = ex.view(-1, 1, self.N, self.get_inShape())
 
 #         return super(PrepCMDS, self).__call__(ex)
+
+
+# class PrepPerDist(Preprocess):
+
+#     def __init__(self, N, scale=True):
+
+#         super(PrepPerDist, self).__init__(N, False, scale, False)
+
+#     def __call__(self, x):
+
+#         px = x.view(-1, 1, self.N)
+
+#         return super(PrepPerDist, self).__call__(px)
 

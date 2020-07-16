@@ -1,3 +1,4 @@
+# %%
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -20,7 +21,7 @@ torch.set_default_tensor_type('torch.DoubleTensor')
 font = {'size': 7}
 matplotlib.rc('font', **font)
 
-color = ['g', 'y', 'r', 'c', 'm']
+color = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 
 class Application:
@@ -36,10 +37,11 @@ class Application:
         # self.etm.use_pretrained_model('result\Coord_StepLinear_E2_3MSE_5_82_400.model')
 
         self.methods = {'Classical MDS':    self.etm.classicalMDS,
+                        'Isomap':           self.etm.isomap,
                         'Landmark MDS':     self.etm.landmarkMDS,
                         'Non-Metric MDS':   self.etm.nonMetricMDS,
                         'Fastmap':          self.etm.fastmap,
-                        'Deep MDS':          self.etm.deepMDS
+                        'Deep MDS':         self.etm.deepMDS
                         }
 
         self.methods_name = [*self.methods.keys()]
@@ -47,20 +49,37 @@ class Application:
             zip(self.methods_name, color[:len(self.methods_name)]))
         self.methods_color['True Data'] = 'b'
 
+        self.opt_loss = StringVar(self.master)
+        self.opt_model = StringVar(self.master)
+        self.opt_prep = StringVar(self.master)
+        self.opt_method = StringVar(self.master)
+
+        self.opt_loss.set(list(manifold.lossFunMap.keys())[0])
+        self.opt_model.set(list(manifold.modelMap.keys())[0])
+        self.opt_prep.set(list(manifold.prepMap.keys())[0])
+        self.opt_method.set('Select a method :')
+
+        self.layerValue = IntVar()
+        self.neuronValue = IntVar()
+        self.minEpochValue = IntVar()
+        self.maxEpochValue = IntVar()
+
+        self.window_deepMDS = None
+
         self.dot_list = {}
         self.anno_list = {}
 
         self.colorized = False
         self.showingTrueLabel = False
 
-        self._buildDmPane().pack(side=LEFT, expand=None, fill=BOTH, padx=(20, 0))
-        self._buildCoordPane().pack(side=TOP, expand=Y, fill=BOTH,
+        self.__buildDmPane().pack(side=LEFT, expand=None, fill=BOTH, padx=(20, 0))
+        self.__buildCoordPane().pack(side=TOP, expand=Y, fill=BOTH,
                                     padx=(10, 20), pady=(30, 0))
-        self._buildPlotPane().pack(side=BOTTOM, expand=YES, fill=BOTH)
+        self.__buildPlotPane().pack(side=BOTTOM, expand=YES, fill=BOTH)
 
-        self.btn_genDM_fun()
+        self.__btn_genDM_fun()
 
-    def _buildPlotPane(self):
+    def __buildPlotPane(self):
 
         fig = plt.figure(figsize=(5, 5))
         self.ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
@@ -76,23 +95,23 @@ class Application:
         self.canvas.draw()
 
         btn_removeLabel = Button(
-            plotPane, text='Clear Current Label', command=self._plotRemove)
+            plotPane, text='Clear Current Label', command=self.plotRemove)
         btn_removeLabel.grid(
             row=4, column=1, columnspan=1, pady=10, padx=(30, 0), sticky='nesw')
 
         btn_removeLabel = Button(
-            plotPane, text='Clear All Label', command=self._plotClear)
+            plotPane, text='Clear All Label', command=self.plotClear)
         btn_removeLabel.grid(
             row=4, column=2, columnspan=1, pady=10, padx=(10, 10), sticky='nesw')
 
-        self.btn_toggleTrueLabel = Button(plotPane, text='Hide True Label',
-                                          command=self._toggleTrueLabel)
-        self.btn_toggleTrueLabel .grid(
+        self.btntoggleTrueLabel = Button(plotPane, text='Hide True Label',
+                                          command=self.toggleTrueLabel)
+        self.btntoggleTrueLabel .grid(
             row=4, column=3, columnspan=1, pady=10, padx=(0, 30), sticky='nesw')
 
         return plotPane
 
-    def _buildCoordPane(self):
+    def __buildCoordPane(self):
 
         self.rsCoordViews = []
 
@@ -121,18 +140,15 @@ class Application:
 
                 self.rsCoordViews.append(t)
 
-        self.opt_method = StringVar(self.master)
-        self.opt_method.set('Select a method :')
-
         meun_method = OptionMenu(
-            coordPane, self.opt_method, *self.methods_name, command=self.btn_rsCoord_fun)
+            coordPane, self.opt_method, *self.methods_name, command=self.__btn_rsCoord_fun)
         meun_method.grid(
             row=gridy, column=1, columnspan=gridy, pady=10, padx=10, sticky='ew')
         meun_method.config(width=20)
 
         return coordPane
 
-    def _buildDmPane(self):
+    def __buildDmPane(self):
 
         self.genDmViews = []
         self.rsDmViews = []
@@ -175,13 +191,13 @@ class Application:
                 self.genDmViews.append(t)
                 self.rsDmViews.append(k)
 
-        btn_genEuDM = Button(
-            dmPane_gen, text='Generate Euclidean Data', command=self.btn_genEuDM)
-        btn_genEuDM.grid(
+        __btn_genEuDM = Button(
+            dmPane_gen, text='Generate Euclidean Data', command=self.__btn_genEuDM)
+        __btn_genEuDM.grid(
             row=gridy, column=0, columnspan=gridy + 1, pady=(10, 0), padx=30, sticky='nesw')
 
         btn_genDM = Button(
-            dmPane_gen, text='Generate Random Data', command=self.btn_genDM_fun)
+            dmPane_gen, text='Generate Random Data', command=self.__btn_genDM_fun)
         btn_genDM.grid(
             row=gridy + 1, column=0, columnspan=gridy + 1, pady=(0, 10), padx=30, sticky='nesw')
 
@@ -190,66 +206,166 @@ class Application:
             row=0, column=0, columnspan=gridy - 3, pady=10, padx=(30, 10), sticky='nesw')
 
         btn_colorize = Button(dmPane_rs, text='Colorize Distance',
-                              command=lambda: self._colorize_diff(self.rsDmViews))
+                              command=lambda: self.toggleColorizeDiff(self.rsDmViews))
         btn_colorize.grid(
             row=0, column=gridy - 3, columnspan=3, pady=10, padx=(0, 30), sticky='nesw')
 
         return dmPane
 
-    def btn_rsCoord_fun(self, method_name=None):
+    def __disablePrepForAE(self, model):
 
-        dm = self._getEntry(self.genDmViews).reshape(self.N, self.N)
+        if model == 'AE':
+            self.menu_prep['menu'].entryconfigure('M', state="disabled")
+            self.menu_prep['menu'].entryconfigure('E2', state="disabled")
+        else:
+            self.menu_prep['menu'].entryconfigure('M', state= "normal")
+            self.menu_prep['menu'].entryconfigure('E2', state="normal")
 
-        if method_name is None:
-            method_name = self.opt_method.get()
+
+    def __buildDeepMDSWindow(self):
+
+        self.window_deepMDS = Toplevel(self.master)
+        self.window_deepMDS.resizable(0, 0)
+
+        self.window_deepMDS.configure(background="white")
+        self.window_deepMDS.grid_columnconfigure((0, 7), weight=1)
+
+        menu_loss = OptionMenu(self.window_deepMDS,
+                               self.opt_loss, *manifold.lossFunMap)
+
+        menu_model = OptionMenu(self.window_deepMDS,
+                                self.opt_model, *manifold.modelMap, command=self.__disablePrepForAE)
+
+        self.menu_prep = OptionMenu(self.window_deepMDS,
+                               self.opt_prep, *manifold.prepMap)
+
+        label_loss = Label(self.window_deepMDS, text="Select a Loss function",
+                           justify=LEFT, anchor="w",
+                           width=17, background="white")
+        label_model = Label(self.window_deepMDS, text="Select a Model",
+                            justify=LEFT, anchor="w",
+                            width=17, background="white")
+        label_prep = Label(self.window_deepMDS, text="Select a Preprocess",
+                           justify=LEFT, anchor="w",
+                           width=17, background="white")
+
+        self.entry_layer = Scale(self.window_deepMDS, background="white",
+                                 from_=2, to=10, showvalue=0, variable=self.layerValue,
+                                 label='Select the number of extra layer:', orient=HORIZONTAL)
+        label_layer = Entry(self.window_deepMDS, width=5,
+                            textvariable=self.layerValue)
+
+        self.entry_nuerons = Scale(self.window_deepMDS, background="white",
+                                   from_=-5, to=200, showvalue=0, variable=self.neuronValue,
+                                   label='Select the number of extra neruons:', orient=HORIZONTAL)
+        label_neuron = Entry(self.window_deepMDS, width=5,
+                             textvariable=self.neuronValue)
+
+        self.entry_minEpoch = Scale(self.window_deepMDS, background="white",
+                                    resolution=10,
+                                    from_=10, to=2000, showvalue=0, variable=self.minEpochValue,
+                                    label='Select the number of min epoch:', orient=HORIZONTAL)
+        label_minEpoch = Entry(self.window_deepMDS, width=5,
+                               textvariable=self.minEpochValue)
+
+        self.entry_maxEpoch = Scale(self.window_deepMDS, background="white",
+                                    resolution=10,
+                                    from_=10, to=2000, showvalue=0, variable=self.maxEpochValue,
+                                    label='Select the number of max epoch:', orient=HORIZONTAL)
+        label_maxEpoch = Entry(self.window_deepMDS, width=5,
+                               textvariable=self.maxEpochValue)
+
+        btn_pretrained = Button(
+            self.window_deepMDS, text='Using Pre-trained Model', command=self.__promptForModel)
+
+        btn_submit = Button(
+            self.window_deepMDS, text='Apply and Close', command=self.__configDeepModel)
+
+        label_model.grid(row=0, column=1, columnspan=1,
+                         pady=10, padx=10, sticky='ew')
+        menu_model .grid(row=0, column=2, columnspan=1,
+                         pady=10, padx=10, sticky='ew')
+
+        label_prep.grid(row=1, column=1, columnspan=1,
+                        pady=10, padx=10, sticky='ew')
+        self.menu_prep.grid(row=1, column=2, columnspan=1,
+                       pady=10, padx=10, sticky='ew')
+
+        label_loss.grid(row=2, column=1, columnspan=1,
+                        pady=10, padx=10, sticky='ew')
+        menu_loss.grid(row=2, column=2, columnspan=1,
+                       pady=10, padx=10, sticky='ew')
+
+        self.entry_layer.grid(row=3, column=1, columnspan=5,
+                              pady=10, padx=10, sticky='ew')
+        self.entry_nuerons.grid(
+            row=4, column=1, columnspan=5, pady=10, padx=10, sticky='ew')
+        self.entry_minEpoch.grid(
+            row=5, column=1, columnspan=5, pady=10, padx=10, sticky='ew')
+        self.entry_maxEpoch.grid(
+            row=6, column=1, columnspan=5, pady=10, padx=10, sticky='ew')
+
+        label_layer.grid(row=3, column=6, columnspan=1,
+                         pady=10, padx=10, sticky='ew')
+        label_neuron.grid(row=4, column=6, columnspan=1,
+                          pady=10, padx=10, sticky='ew')
+        label_minEpoch.grid(row=5, column=6, columnspan=1,
+                            pady=10, padx=10, sticky='ew')
+        label_maxEpoch.grid(row=6, column=6, columnspan=1,
+                            pady=10, padx=10, sticky='ew')
+
+        btn_pretrained.grid(row=7, column=1, columnspan=3,
+                        pady=10, padx=10, sticky='w')
+
+        btn_submit.grid(row=7, column=4, columnspan=3,
+                        pady=10, padx=10, sticky='w')
+
+    def __btn_rsCoord_fun(self, method_name=None):
+
+        dm = self.getEntry(self.genDmViews).reshape(self.N, self.N)
+
+        method_name = self.opt_method.get() if method_name is None else method_name
 
         if method_name == 'Deep MDS':
-            
-            model_path = filedialog.askopenfilename(
-                initialdir=".", title="Select A Model", filetypes=(("Pretained Model", "*.model"), ("all files", "*.*")))
-            
-            if model_path == '':
-                return
 
-            self.opt_method.set(model_path.split('\\')[-1].split('/')[-1])
-            self.etm.use_pretrained_model(model_path)
-            
-            self._plotRemove(method_name)
+            if self.window_deepMDS is not None:
+                return 
 
-        data = self.methods[method_name](dm)
-        # try:
-        #     data = self.methods[method_name](dm)
-        # except:
-        #     self.opt_method.set(method_name + ' failed to get result !')
-        #     self._fillEntry(data=numpy.zeros(self.N * self.d),
-        #                     entrylist=self.rsCoordViews)
-        #     return
+            self.plotRemove(method_name)
+            self.__buildDeepMDSWindow()
+
+            self.master.wait_window(self.window_deepMDS)
+            self.window_deepMDS = None
+
+        data, time = utils.time_measure(self.methods[method_name], [dm])
 
         data = torch.tensor(data)
         data = utils.minmax_norm(data.view(1, -1))[0]
 
-        self._fillEntry(data=data, entrylist=self.rsCoordViews)
+        self.fillEntry(data=data, entrylist=self.rsCoordViews)
 
         coords = data.reshape(self.N, self.d)
-        self._plotData(x=coords[:, 0], y=coords[:, 1], label=method_name)
+        self.plotData(x=coords[:, 0], y=coords[:, 1], label=method_name)
 
         dm = torch.tensor(dm)
 
         rs_dm = utils.get_distanceSq_matrix(coords) ** 0.5
         rs_dm = utils.minmax_norm(rs_dm)[0] * torch.max(dm)
 
-        loss = torch.mean(torch.pow(dm - rs_dm.view_as(dm), 2))
+        loss = torch.mean(torch.abs(dm - rs_dm.view_as(dm)))
 
-        self.label_loss.config(text='MSE = ' + str(float(loss)))
+        self.label_loss.config(text='Loss = %s (%ss)' % (
+            str(round(float(loss), 10)), str(round(time, 4))
+        ))
 
-        self._fillEntry(data=rs_dm, entrylist=self.rsDmViews)
+        self.fillEntry(data=rs_dm, entrylist=self.rsDmViews)
 
         self.colorized = not self.colorized
-        self._colorize_diff(self.rsDmViews)
+        self.toggleColorizeDiff(self.rsDmViews)
 
-    def btn_genEuDM(self):
+    def __btn_genEuDM(self):
 
-        self._plotClear()
+        self.plotClear()
 
         self.coords = dataSource.get_rand_data((1, self.N, 2), isInt=True,
                                                maxXY=maxXY, minXY=minXY)
@@ -258,14 +374,18 @@ class Application:
         data = utils.get_distanceSq_matrix(self.coords) ** 0.5
         data = utils.minmax_norm(data)[0]
 
-        self._fillEntry(data=data, entrylist=self.genDmViews)
+        self.fillEntry(data=data, entrylist=self.genDmViews)
+
+        self.coords = self.etm.norm(self.coords[0].detach().numpy())
 
         self.showingTrueLabel = False
-        self._toggleTrueLabel()
+        self.toggleTrueLabel()
 
-    def btn_genDM_fun(self):
+        self.resetResult()
 
-        self._plotClear()
+    def __btn_genDM_fun(self):
+
+        self.plotClear()
 
         self.coords = None
 
@@ -273,20 +393,48 @@ class Application:
             N=self.N, sample_size=1, isInt=True, sample_space=(maxXY, minXY))
         data = utils.minmax_norm(data)[0]
 
-        self._fillEntry(data=data, entrylist=self.genDmViews)
+        self.fillEntry(data=data, entrylist=self.genDmViews)
 
         self.showingTrueLabel = True
-        self._toggleTrueLabel()
+        self.toggleTrueLabel()
 
-    def _fillEntry(self, data, entrylist):
+        self.resetResult()
+
+    def __configDeepModel(self):
+
+        self.etm.make_new_model(
+            modelKey=self.opt_model.get(), lossFunKey=self.opt_loss.get(), prepKey=self.opt_prep.get(),
+            nNeuron=int(self.entry_layer.get()), nLayer=int(self.entry_nuerons.get()),
+            minEpoch=int(self.entry_minEpoch.get()), maxEpoch=int(self.entry_maxEpoch.get())
+        )
+
+        self.window_deepMDS.destroy()
+
+    def __promptForModel(self):
+
+        model_path = filedialog.askopenfilename(
+            initialdir=".", title="Select A Model", filetypes=(("Pretained Model", "*.model"), ("all files", "*.*")))
+
+        if model_path != '':
+            self.opt_method.set(model_path.split('\\')[-1].split('/')[-1])
+            self.etm.use_pretrained_model(model_path)
+            self.window_deepMDS.destroy()
+    
+    def fillEntry(self, data, entrylist):
 
         data = numpy.array(data).reshape(-1)
+        datalen = len(data)
 
-        for i in range(len(data)):
+        for i in range(len(entrylist)):
+
             entrylist[i].delete(0, END)
-            entrylist[i].insert(0, round(data[i], 4))
 
-    def _getEntry(self, entrylist):
+            if i >= datalen:
+                entrylist[i].insert(0, '')
+            else:
+                entrylist[i].insert(0, round(data[i], 4))
+
+    def getEntry(self, entrylist):
 
         try:
             data = numpy.array([float(e.get())for e in entrylist])
@@ -295,7 +443,7 @@ class Application:
 
         return data
 
-    def _plotRemove(self, label=None):
+    def plotRemove(self, label=None):
 
         if label is None:
             label = self.opt_method.get()
@@ -317,16 +465,16 @@ class Application:
 
         self.canvas.draw()
 
-    def _plotClear(self):
+    def plotClear(self):
 
         for label in self.methods.keys():
-            self._plotRemove(label)
+            self.plotRemove(label)
 
-    def _plotData(self, x, y, label):
+    def plotData(self, x, y, label):
 
         anno = []
 
-        self._plotRemove(label)
+        self.plotRemove(label)
 
         self.dot_list[label] = self.ax.scatter(
             x, y, label=label, c=self.methods_color[label])
@@ -338,11 +486,21 @@ class Application:
         self.ax.legend()
         self.canvas.draw()
 
-    def _colorize_diff(self, entrylist):
+    def resetResult(self):
+
+        self.colorized = True
+        self.toggleColorizeDiff(self.rsDmViews)
+
+        self.label_loss.config(text='')
+
+        self.fillEntry(data=[], entrylist=self.rsDmViews)
+        self.fillEntry(data=[], entrylist=self.rsCoordViews)
+
+    def toggleColorizeDiff(self, entrylist):
 
         try:
-            diff = self._getEntry(self.rsDmViews) - \
-                self._getEntry(self.genDmViews)
+            diff = self.getEntry(self.rsDmViews) - \
+                self.getEntry(self.genDmViews)
         except:
             return
 
@@ -360,17 +518,17 @@ class Application:
 
         self.colorized = not self.colorized
 
-    def _toggleTrueLabel(self):
+    def toggleTrueLabel(self):
 
         if self.showingTrueLabel:
-            self._plotRemove('True Data')
-            self.btn_toggleTrueLabel.config(text='Show True Data')
+            self.plotRemove('True Data')
+            self.btntoggleTrueLabel.config(text='Show True Data')
             self.showingTrueLabel = False
         elif self.coords is not None:
-            self._plotData(
-                self.coords[0, :, 0],
-                self.coords[0, :, 1], 'True Data')
-            self.btn_toggleTrueLabel.config(text='Hide True Data')
+            self.plotData(
+                self.coords[:, 0],
+                self.coords[:, 1], 'True Data')
+            self.btntoggleTrueLabel.config(text='Hide True Data')
             self.showingTrueLabel = True
 
 
@@ -387,8 +545,7 @@ app = Application(N=10, d=2, master=root)
 root.mainloop()
 
 
-def shutdown():
-    app.destroy()
+app.protocol("WM_DELETE_WINDOW", lambda x: x.destroy())
 
 
-app.protocol("WM_DELETE_WINDOW", shutdown)
+# %%

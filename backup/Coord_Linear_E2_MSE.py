@@ -15,7 +15,6 @@ from lossFunction import CustomLoss, CoordsToDMLoss, ReconLoss, MultiLoss, sammo
 from torch.utils.data import DataLoader
 
 from model.Linear import Linear, ReuseLinear, StepLinear
-from model.EignModel import EignModel
 
 import model.AutoEncoder as ae
 import model.RNN as rnn
@@ -44,14 +43,14 @@ preprocess = PrepEign(N)
 in_dim = preprocess.get_inShape()
 out_dim = 2
 
-def get_model(neuron, i, in_dim, out_dim):
+def get_model(nNeuron, nLayer, in_dim, out_dim):
 
-    n = int(neuron)
+    nNeuron = nNeuron + in_dim
+    
+    mid1 = int((nNeuron + in_dim) / 2)
+    mid2 = int((nNeuron + out_dim) / 2)
 
-    mid1 = int((n + in_dim) / 2)
-    mid2 = int((n + out_dim) / 2)
-
-    mid = [int(n + in_dim)] * (i - 2)
+    mid = [nNeuron] * (nLayer - 2)
 
     return Linear(
         dim=[in_dim, mid1, *mid, mid2, out_dim],
@@ -67,7 +66,7 @@ copyfile('train.py', bkup_dest)
 
 #%%
 
-param = [(N, L)  for L in range(5, 6) for N in range(8, 73, 16)]
+param = [(N, L)  for L in range(2, 5) for N in range(8, 73, 16)]
 
 for neuron, i in param:
 

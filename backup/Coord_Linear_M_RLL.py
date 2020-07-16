@@ -46,7 +46,8 @@ out_dim = 2
 
 def get_model(nNeuron, nLayer, in_dim, out_dim):
 
-    nNeuron = nNeuron= in_dim
+    nNeuron = nNeuron + in_dim
+    
     mid1 = int((nNeuron + in_dim) / 2)
     mid2 = int((nNeuron + out_dim) / 2)
 

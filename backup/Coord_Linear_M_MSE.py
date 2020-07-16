@@ -43,12 +43,15 @@ preprocess = PrepMatrix(N)
 in_dim = preprocess.get_inShape()
 out_dim = 2
 
+
 def get_model(nNeuron, nLayer, in_dim, out_dim):
 
+    nNeuron = nNeuron + in_dim
+    
     mid1 = int((nNeuron + in_dim) / 2)
     mid2 = int((nNeuron + out_dim) / 2)
 
-    mid = [nNeuron + in_dim] * (nLayer - 2)
+    mid = [nNeuron] * (nLayer - 2)
 
     return Linear(
         dim=[in_dim, mid1, *mid, mid2, out_dim],
@@ -64,7 +67,7 @@ copyfile('train.py', bkup_dest)
 
 #%%
 
-param = [(N, L)  for L in range(2, 5'*) for N in range(8, 73, 16)]***
+param = [(N, L)  for L in range(2, 5) for N in range(8, 73, 16)]
 
 for neuron, i in param:
 

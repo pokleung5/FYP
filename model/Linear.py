@@ -32,7 +32,7 @@ class Linear(nn.Module):
         else:
             self.final_act = None
 
-    def forward(self, x):
+    def encode(self, x):
 
         e = self.encoder(x)
 
@@ -40,6 +40,10 @@ class Linear(nn.Module):
             e = self.final_act(e)
 
         return e
+
+    def forward(self, x):
+
+        return self.encode(x)
 
 
 class ReuseLinear(nn.Module):

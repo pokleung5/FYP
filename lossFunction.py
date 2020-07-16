@@ -37,7 +37,6 @@ def relative_loss(result, target):
 
     if target.size()[-1] == target.size()[-2]:
         target = utils.vectorize_distance_from_DM(target)
-    
 
     loss = torch.div(result - target, target)
     loss = torch.pow(loss, 2)
@@ -100,6 +99,7 @@ class CoordsToDMLoss(CustomLoss):
         batch = target.size()[0]
 
         rs = rs.view(batch, self.N, -1)
+        target = target.view(batch, self.N, self.N)
 
         rs_dm = utils.get_distanceSq_matrix(rs)
         rs_dm = rs_dm.view_as(target)
@@ -120,10 +120,21 @@ class ReconLoss(CustomLoss):
 
     def forward(self, rs, target):
 
-        rs_dist = F.softplus(rs) # avoid negative distance value    
-        target_dist = utils.vectorize_distance_from_DM(target)
+        if target.size()[-1] == target.size()[-2]:
+            target = utils.vectorize_distance_from_DM(target)
 
-        return super(ReconLoss, self).forward(rs_dist, target_dist)
+        if rs.size() != target.size():
+
+            if rs.size()[-1] != rs.size()[-2]:
+
+                N = int(rs.size()[-1]** 0.5)
+                rs = rs.view(-1, N, N)
+
+            rs = utils.vectorize_distance_from_DM(rs)
+
+        rs = F.softplus(rs) # avoid negative distance value    
+
+        return super(ReconLoss, self).forward(rs, target)
 
 
 class VAELoss(nn.Module):

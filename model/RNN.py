@@ -9,11 +9,12 @@ from . import Linear
 
 class LRNN(nn.Module):
 
-    def __init__(self, dim: list, num_rnn_layers=1, activation=nn.LeakyReLU):
+    def __init__(self, N, dim: list, num_rnn_layers=1, activation=nn.LeakyReLU):
 
         super(LRNN, self).__init__()
 
-        self.N = dim[0]
+        self.N = N
+        self.in_dim = dim[0]
 
         self.lstm = nn.LSTM(
             input_size=dim[0],
@@ -22,15 +23,26 @@ class LRNN(nn.Module):
             batch_first=True
         )
 
-        self.out = Linear.get_Linear_Sequential(dim[1:], activation)
+        if len(dim) >= 3:
+            self.nextLayer = LRNN(self.N, dim=dim[1:])
+        else:
+            self.nextLayer = None
+            
+
+    def encode(self, x):
+
+        x = x.view(-1, self.N, self.in_dim)
+        y1, (hn, cn) = self.lstm(x)
+
+        if self.nextLayer is not None:
+            y1 = self.nextLayer(y1)
+
+        return y1
 
     def forward(self, x):
 
-        x = x.view(-1, self.N, self.N)
-        y1, (hn, cn) = self.lstm(x)
-        y2 = self.out(y1)
+        return self.encode(x)
 
-        return y1, y2
 
 class aRNN(nn.Module):
 
@@ -52,7 +64,7 @@ class aRNN(nn.Module):
         else:
             self.encoder = output_layer
 
-    def forward(self, x):
+    def encode(self, x):
 
         batch = x.size()[0]
         x1 = x.view(batch, -1, self.in_lstm)
@@ -64,6 +76,10 @@ class aRNN(nn.Module):
         y2 = self.encoder(y1)
 
         return y2
+
+    def forward(self, x):
+
+        return self.encode(x)
 
 # %%
 
@@ -88,7 +104,8 @@ class bRNN(nn.Module):
             hidden_size=out_dim,
             num_layers=num_rnn_layers)
 
-    def forward(self, x):
+    def encode(self, x):
+
         batch = x.size()[0]
 
         x1 = self.encoder(x)
@@ -99,3 +116,8 @@ class bRNN(nn.Module):
         y1 = y1.permute(1, 0, 2)
 
         return y1
+
+
+    def forward(self, x):
+
+        return self.encode(x)

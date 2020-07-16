@@ -36,21 +36,21 @@ coordLoss = CoordsToDMLoss(N, lossFun=nn.MSELoss(reduction='mean'))
 reconLoss = ReconLoss(lossFun=nn.MSELoss(reduction='mean'))
 mseLoss = CustomLoss(lossFun=nn.MSELoss(reduction='mean'))
 
-lossFun = MultiLoss(lossFunList=[coordLoss])
+lossFun = MultiLoss(lossFunList=[reconLoss, coordLoss])
 
 preprocess = PrepMatrix(N, flatten=True)
 
 in_dim = preprocess.get_inShape()
 out_dim = N * 2
 
-def get_model(neuron, i, in_dim, out_dim):
+def get_model(nNeuron, nLayer, in_dim, out_dim):
 
-    n = int(neuron)
+    nNeuron = nNeuron + in_dim
+    
+    mid1 = int((nNeuron + in_dim) / 2)
+    mid2 = int((nNeuron + out_dim) / 2)
 
-    mid1 = int((n + in_dim) / 2)
-    mid2 = int((n + out_dim) / 2)
-
-    mid = [int(n)] * (i - 2)
+    mid = [nNeuron] * (nLayer - 2)
 
     return Linear(
         dim=[in_dim, mid1, *mid, mid2, out_dim],

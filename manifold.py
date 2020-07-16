@@ -11,7 +11,35 @@ import mds.cmds as cmds
 import numpy, torch, pandas 
 import utils
 
-from lossFunction import CoordsToDMLoss
+import trainHelper
+
+from preprocess import * 
+from lossFunction import *
+
+from model.Linear import Linear
+from model.AutoEncoder import AutoEncoder
+
+
+init_lr = 1e-3
+
+lossFunMap = {
+    "L1": nn.L1Loss(reduction='mean'),
+    "MSE": nn.MSELoss(reduction='mean'),
+    "SML": sammon_loss,
+    "SRL": relative_loss
+}
+
+modelMap = {
+    "Linear": Linear,
+    "AE": AutoEncoder
+}
+
+prepMap = {
+    "MF": PrepMatrix,
+    "M": PrepMatrix,
+    "D": PrepDist,
+    "E2": PrepEign
+}
 
 class Algorithm:
 
@@ -94,7 +122,46 @@ class Algorithm:
         
         h = utils.load_variable(filename)
         h.preprocess.add_noise=False
-        self.__deep_model = h._predict
+        h.isTraining = False
+        self.__deep_model = h.predict
+
+
+    def make_new_model(self, modelKey, lossFunKey, prepKey, nNeuron, nLayer, minEpoch=0, maxEpoch=9999):
+
+        lfn = lossFunKey.split('|')
+
+        lossList = [
+            ReconLoss(lossFun=lossFunMap[lfn[0]]),
+        ] if modelKey == 'AE' else [
+            CoordsToDMLoss(self.N, lossFun=lossFunMap[lfn[0]])
+        ]
+
+        lossFun = MultiLoss(lossFunList=lossList)
+
+        if prepKey == 'MF':
+            preprocess = prepMap[prepKey](self.N, flatten=True)
+        else:
+            preprocess = prepMap[prepKey](self.N)
+
+        in_dim = preprocess.get_inShape()
+        out_dim = preprocess.get_outShape(self.d)
+        
+        if modelKey != 'AE' and prepKey == 'MF':
+            out_dim = int(self.N * (self.N - 1) / 2)
+
+        nNeuron = nNeuron + in_dim
+        dim = [in_dim, int((in_dim + nNeuron) / 2), *([nNeuron] * (nLayer - 2)), int((in_dim + nNeuron) / 2), out_dim]
+        
+        model = modelMap[modelKey](dim = dim, activation = nn.LeakyReLU)
+        model_id = '_'.join([modelKey, prepKey, lossFunKey, str(nLayer), str(nNeuron)])
+
+        newTrainer = trainHelper.TrainHelper(id=model_id, model=model, lossFun=lossFun,
+        optimizer=torch.optim.Adam(model.parameters(), init_lr),
+        preprocess=preprocess)
+
+        newTrainer.config_fit(minEpoch=minEpoch, maxEpoch=maxEpoch)
+        self.__deep_model = newTrainer.predict
+
 
     def deepMDS(self, x):
 
@@ -110,66 +177,27 @@ class Algorithm:
         rs = self.norm(rs)
         return rs
 
+
 #%%
 if __name__ == "__main__":
     
-    import dataSource
+    import dataSource, test
     from sklearn import datasets
 
     N, d = 10, 2
-    batch = 500
+    sample_size = 1
 
-    test_data = dataSource.custom_distance(N, d, batch, isInt=True,
-            sample_space=(1000, 1),
-            dist_func=lambda a, b, _: torch.sum(torch.abs(a - b)** 2)** 0.5)
-    
-    test_data = dataSource.generate_rand_DM(N, batch, isInt=True,
+    test_data = dataSource.generate_rand_DM(N, sample_size, isInt=True,
             sample_space=(1000, 1))
-
-    # digits = datasets.load_digits(n_class=6).data
-    # digits = torch.tensor(digits)
-    # test_data = utils.get_distanceSq_matrix(digits) ** 0.5
 
     test_data = utils.minmax_norm(test_data, dmin=0)[0]
 
-    N = test_data.size()[-1]
+    alg = Algorithm(N, d)
 
-    skl = Algorithm(N, d)
+    alg.make_new_model(x=test_data, modelKey='Linear', lossFunKey='SML', prepKey='MF',
+     nNeuron=72, nLayer=3)
 
-    method_itr = {
-        'classicalMDS': skl.classicalMDS,
-        # 'nonMetricMDS': skl.nonMetricMDS,
-        'landmarkMDS': skl.landmarkMDS,
-        # 'isomap': skl.isomap,
-        # 'fastmap': skl.fastmap,
-        # 't-SNE': skl.tsne,
-        'Deep MDS': skl.deepMDS
-    }
+    tester = test.Test(10, 2, 500)
 
-    skl.use_pretrained_model('backup/Coord_Linear_AEModel_MSE_2_8_200.model')
-    lossFun = CoordsToDMLoss(
-            N=N, lossFun=torch.nn.MSELoss(reduction='mean'))
-
-    record = []
-
-    for name, method in method_itr.items():
-
-        rs, time = [], []
-
-        for a in test_data:
-
-            a = a.view(N, N).detach().numpy()
-            b1, t = utils.time_measure(method, [a])
-
-            rs.append(torch.tensor(b1))
-            time.append(t)
-
-        rs = torch.stack(rs)
-
-        loss = float(lossFun(rs, test_data))
-        time = sum(time) / len(time)
-
-        record.append([name, loss, time])
-        
-    tabulate = pandas.DataFrame(record, columns=['Method', 'Loss', 'Time'])
-    print(tabulate.sort_values(['Loss']))
+    print(tester.test(cmds.classicalMDS, test_data[0]))
+    print(tester.test(alg.deepMDS, test_data))

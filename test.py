@@ -69,7 +69,7 @@ class Test:
             time.append(t)
 
         rs = torch.stack(rs).view(-1, self.N, self.d)
-        loss = float(self.lossFun(rs, self.test_data))
+        loss = float(self.lossFun(rs, data))
         time = sum(time)
 
         return loss, time
@@ -116,21 +116,29 @@ class Test:
         return pandas.DataFrame(linear_result_score, columns=[
             'Method', 'Model', 'Input', 'LossFun', 'Layer', 'Neuron', 'Epoch', 'Loss', 'Time'
         ])
+
 #%%
 
 if __name__ == "__main__":
 
-    test = Test(10, 2, 5)
+    # for fn in set(glob.glob('backup/Coord*_2_8_100.model')) | set(glob.glob('backup/Coord*_1_8_100.model')):
+    #     print(fn, '\n',utils.load_variable(fn).model)
+
+    # exit(0)
+
+    # tester = Test(10, 2, 500)
 
     # test.reload_custom(lambda a, b, _: torch.sum(torch.abs(a - b)**2)**0.5, n_arg=2)
 
-    print(test.classicSolution())
+    # test = utils.load_variable('tester.var')
+    mds_rs = test.classicSolution()
+    # mds_rs.to_csv('classical.csv')
+
+    print(mds_rs)
     print('==========================================')
 
     records = test.tabulate(
-        set(glob.glob('result/Coord*.model'))
-        - set(glob.glob('result/*Overfit*.model'))
-        - set(glob.glob('result/*(M)*.model'))
+        set(glob.glob('backup/*.model'))
         )
 
     r1 = records[records['Epoch'] != 'Overfit']
@@ -138,10 +146,6 @@ if __name__ == "__main__":
     print(r1.iloc[r1.groupby(['Model', 'Input', 'LossFun'])['Loss'].idxmin()].sort_values(['Loss']))
     # print('==========================================')
 
-    # records.to_csv('rank.csv')
-
-    # Test(10, 2, 1000).printTopN(
-    # glob.glob('trained_model\Coord*'), -1)
-
-
+    records.to_csv('deep_method.csv')
+    
 # %%

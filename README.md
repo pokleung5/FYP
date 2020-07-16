@@ -4,7 +4,19 @@ This FYP aims to provide a deep learning based solution for recalculate the coor
 
 There are basically two solution, Classical Multidimensional Scaling (CMDS) using mathematical rule and Non-Metric Multidimensional Scaling (NMDS) as an iterative method. However, CMDS is slow and the accuracy is limited to linear transformed data, for non-linear transformed data, CMDS result can still be good but not the best. 
 
-To deal with the issue, extended method like Landmark Multidimensional Scaling (LMDS) and Isomap are then proprosed. 
+To deal with the issue, extended methods like Landmark Multidimensional Scaling (LMDS) and Isomap are then proprosed. 
+
+## Requirements
+
+- Python 3.7.7
+- Library
+  - Pytorch 1.0.1 - Framework for implementing neural network
+  - Scikit Learn 0.22.1 - Support for implemented algorithm
+  - Pandas 0.23.4 - Support for record filtering and exporting 
+  - Numpy 1.18.1 - Support for numerical operationas
+  - Dill 0.3.1.1 - Support for model backup
+  - matplotlab 3.2.1 - Support for visualization of the result
+  - tkinter 8.6.8 - Support for GUI
 
 ## Solution
 
@@ -32,7 +44,7 @@ To use the deep learning method, press 'Deep MDS' under 'Select A Method':
 ### Preprocessing
 
 - Distance Matrix (M)
-- Distance Only (D
+- Distance Only (D)
 - Flatten Distance Matrix (MF)
 - Eigenvalues & Eigenvectors (E2)
 
